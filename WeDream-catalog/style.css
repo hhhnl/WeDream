@@ -1,0 +1,302 @@
+* {
+    padding: 0;
+    margin: 0;
+}
+ /* 设置固定位置的按钮样式 */
+ .fixed-button {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1000;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+/* 鼠标悬停时的动画效果 */
+.fixed-button:hover {
+    transform: scale(1.1);
+}
+
+/* 设置图片的最大宽度和高度 */
+.fixed-button img {
+    max-width: 200px;
+    max-height: 100px;
+}
+
+body {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    perspective: 1600px;
+    background-image: linear-gradient(to top, #fbc2eb 0%, #a6c1ee 100%);
+    overflow: hidden;
+    background: rgb(14, 2, 0);
+}
+
+.stars {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    pointer-events: none;
+}
+
+.star {
+    position: absolute;
+    background-color: #fff;
+    border-radius: 50%;
+    animation: twinkle var(--duration) infinite ease-in-out;
+    opacity: 0;
+    box-shadow: 0 0 3px rgba(255, 255, 255, 0.9), 0 0 5px rgba(255, 255, 255, 0.4);
+}
+
+@keyframes twinkle {
+    0% {
+        opacity: 0;
+    }
+    40% {
+        opacity: var(--opacity);
+    }
+    60% {
+        opacity: var(--opacity);
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+html {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.book {
+    transform-style: preserve-3d;
+    position: relative;
+    width: 320px;
+    height: 450px;
+    cursor: pointer;
+    backface-visibility: visible;
+    transition: 1s;
+    margin: 150px;
+    pointer-events: auto !important;
+    transform: scale(1.2);
+    z-index: 100;
+}
+
+.book div {
+    transform-style: preserve-3d;
+    position: absolute;
+    width: 320px;
+    height: 100%;
+    top: 0;
+    left: 0;
+    transform-origin: left center;
+    transition: transform 2s ease-in-out, box-shadow 0.35s ease-in-out;
+    pointer-events: none;
+}
+
+.front,
+.back {
+    background-size: cover;
+    opacity: 0.95;
+    border-radius: 10px;
+    background-image: none;
+    background-color: rgb(40, 45, 150);
+}
+
+.front {
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    background-position: center;
+    background-image: url(./fm.png);
+    background-size: cover;
+    opacity: 1;
+}
+
+.back {
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+    background-position: center;
+}
+
+.l {
+    border-bottom-right-radius: .5em;
+    border-top-right-radius: .5em;
+}
+
+.r {
+    border-bottom-right-radius: .5em;
+    border-top-right-radius: .5em;
+}
+
+/* 第一页设置为稍微浅一点的蓝色 */
+.page1 {
+    background: rgb(55, 60, 170);
+}
+
+/* 第二页设置为稍微浅一点的蓝色 */
+.page2 {
+    background: rgb(55, 60, 170);
+}
+
+/* 第三页设置为rgb(73, 80, 221)颜色 */
+.page3 {
+    background: rgb(73, 80, 221);
+}
+
+/* 第四页设置为rgb(73, 80, 221)颜色 */
+.page4 {
+    background: rgb(73, 80, 221);
+}
+
+/* 更换第五页图片为11.png，添加发光效果 */
+.page5 {
+    background-image: url(./11.png);
+    background-size: cover;
+    background-position: center;
+    box-shadow: 0 0 15px rgba(255, 165, 217, 0.6);
+    transition: transform 2s ease-in-out, box-shadow 2s ease-in-out;
+}
+
+/* 更换第六页图片为22.png，添加发光效果 */
+.page6 {
+    background-image: url(./22.png);
+    background-size: cover;
+    background-position: center;
+    box-shadow: 0 0 15px rgba(255, 242, 208, 0.6);
+    transition: transform 2s ease-in-out, box-shadow 2s ease-in-out;
+}
+
+.book.opened {
+    transform: translateX(180px) scale(1.1);
+}
+
+.book.opened div {
+    box-shadow: 0 1em 3em 0 rgba(0, 0, 0, .2);
+}
+
+.book.opened .front {
+    transform: rotateY(-160deg) scale(1.1);
+    opacity: 1;
+}
+
+.book.opened .page1 {
+    transform: rotateY(-150deg) scale(1.1);
+}
+
+.book.opened .page2 {
+    transform: rotateY(-30deg) scale(1.1);
+}
+
+.book.opened .page3 {
+    transform: rotateY(-140deg) scale(1.1);
+}
+
+.book.opened .page4 {
+    transform: rotateY(-40deg) scale(1.1);
+}
+
+.book.opened .page5 {
+    transform: rotateY(-130deg) scale(1.1);
+    transform-origin: left center;
+    box-shadow: 0 0 30px rgba(255, 165, 217, 0.9), 0 0 50px rgba(255, 165, 217, 0.5);
+}
+
+.book.opened .page6 {
+    transform: rotateY(-50deg) scale(1.1);
+    transform-origin: left center;
+    box-shadow: 0 0 30px rgba(255, 242, 208, 0.9), 0 0 50px rgba(255, 242, 208, 0.5);
+}
+
+.book.opened .back {
+    transform: rotateY(-20deg) scale(1.1);
+    opacity: 1;
+}
+
+/* 添加发光动画 */
+@keyframes glow {
+    0% {
+        box-shadow: 0 0 25px rgba(255, 165, 217, 0.8), 0 0 40px rgba(255, 165, 217, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 40px rgba(255, 165, 217, 0.9), 0 0 60px rgba(255, 165, 217, 0.6);
+    }
+    100% {
+        box-shadow: 0 0 25px rgba(255, 165, 217, 0.8), 0 0 40px rgba(255, 165, 217, 0.4);
+    }
+}
+
+/* 当书打开时，应用发光动画到第五页 */
+.book.opened .page5 {
+    animation: glow 3s infinite ease-in-out;
+}
+
+/* 为第六页定义不同颜色的发光动画 */
+@keyframes glow2 {
+    0% {
+        box-shadow: 0 0 25px rgba(255, 242, 208, 0.8), 0 0 40px rgba(255, 242, 208, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 40px rgba(255, 242, 208, 0.9), 0 0 60px rgba(255, 242, 208, 0.6);
+    }
+    100% {
+        box-shadow: 0 0 25px rgba(255, 242, 208, 0.8), 0 0 40px rgba(255, 242, 208, 0.4);
+    }
+}
+
+/* 当书打开时，应用发光动画到第六页 */
+.book.opened .page6 {
+    animation: glow2 4s infinite ease-in-out;
+}
+
+.book:active {
+    pointer-events: none;
+} 
+ /* 固定按钮样式 */
+ .fixed-button1 {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+/* 鼠标悬停时按钮放大效果 */
+.fixed-button1:hover {
+    transform: scale(1.1);
+}
+
+/* 按钮图片样式 */
+.fixed-button1 img {
+    max-width: 150px;
+    max-height: 80px;
+}
+
+/* 隐藏音频元素 */
+audio {
+    display: none;
+}
+/* 自定义光标样式 */
+#cursor {
+    position: fixed;
+    width: 60px;
+    height: 60px;
+    pointer-events: none; /* 使光标不会干扰点击事件 */
+    z-index: 9999; /* 保持光标在最顶层 */
+    transform: translate(-50%, -50%); /* 居中对齐 */
+}
+
+/* 光标拖尾样式 */
+.cursor-trail {
+    display: none; /* 隐藏所有拖尾元素 */
+}
+     /* 隐藏默认光标 */
+     body {
+        cursor: none;
+    }

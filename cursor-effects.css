@@ -1,0 +1,55 @@
+/* 隐藏默认鼠标光标 */
+body {
+    cursor: none !important;
+}
+
+/* 自定义光标样式 */
+#cursor {
+    position: fixed;
+    width: 60px;
+    height: 60px;
+    pointer-events: none; /* 使光标不会干扰点击事件 */
+    z-index: 1000000; /* 提高z-index至1000000，确保光标在所有页面的最顶层 */
+    transform: translate(-50%, -50%); /* 居中对齐 */
+    /* 添加淡黄色发光效果 */
+    filter: drop-shadow(0 0 7px rgba(255, 255, 150, 0.9)) drop-shadow(0 0 14px rgba(255, 240, 120, 0.7));
+    animation: cursor-glow 2s ease-in-out infinite alternate;
+}
+
+/* 光标发光动画 */
+@keyframes cursor-glow {
+    0% {
+        filter: drop-shadow(0 0 7px rgba(255, 255, 150, 0.9)) drop-shadow(0 0 12px rgba(255, 240, 120, 0.7));
+    }
+    100% {
+        filter: drop-shadow(0 0 10px rgba(255, 255, 150, 1)) drop-shadow(0 0 20px rgba(255, 240, 120, 0.9));
+    }
+}
+
+/* 光标拖尾样式 */
+.cursor-trail {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background-image: url('星星.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    pointer-events: none;
+    z-index: 999999; /* 也提高拖尾的z-index，但稍低于光标本身 */
+    opacity: 0.8;
+    transform: translate(-50%, -50%);
+    filter: drop-shadow(0 0 4px rgba(255, 255, 150, 0.7));
+    animation: trail-fade 0.8s forwards ease-out;
+}
+
+/* 拖尾淡出动画 */
+@keyframes trail-fade {
+    0% {
+        opacity: 0.8;
+        transform: translate(-50%, -50%) scale(0.5);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.2);
+    }
+} 

@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <title>目录</title>
+    <link rel="icon" href="../favicon.ico" type="favicon.ico">
+    <!-- 兼容旧版本浏览器 -->
+    <link rel="shortcut icon" href="../favicon.ico" type="favicon.ico">
+    <link rel="stylesheet" href="style.css">
+    <!-- 引入通用光标效果CSS -->
+    <link rel="stylesheet" href="../cursor-effects.css">
+    <!-- 添加星空背景脚本 -->
+    <script>
+    // 页面加载完成标志
+    let pageReady = false;
+    
+    // 生成星空背景
+    function generateStars() {
+      const stars = document.getElementById('stars');
+      const count = 900; // 减少为900颗星星
+      
+      // 清空现有内容
+      stars.innerHTML = '';
+      
+      // 创建多种大小的星星，增加视觉多样性
+      const createStars = (size, count, opacityRange, durationRange) => {
+        // 将页面划分为几个区域，确保星星均匀分布
+        const sections = 10; // 将屏幕垂直方向划分为10个区域
+        const starsPerSection = Math.ceil(count / sections);
+        
+        for (let section = 0; section < sections; section++) {
+          // 计算当前区域的垂直范围
+          const yMin = (section * 100) / sections;
+          const yMax = ((section + 1) * 100) / sections;
+          
+          // 在每个区域内创建星星
+          for (let i = 0; i < starsPerSection; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            
+            // 随机位置，但限制在当前区域内
+            const x = Math.random() * 100;
+            const y = yMin + Math.random() * (yMax - yMin);
+            
+            // 随机大小 (基于传入的尺寸)
+            const finalSize = size * (0.8 + Math.random() * 0.4); // 尺寸上下浮动20%
+            
+            // 随机动画持续时间，大幅缩短以加快闪烁速度
+            const minDuration = durationRange[0];
+            const maxDuration = durationRange[1];
+            const duration = Math.random() * (maxDuration - minDuration) + minDuration;
+            
+            // 随机最大亮度
+            const minOpacity = opacityRange[0];
+            const maxOpacity = opacityRange[1];
+            const opacity = Math.random() * (maxOpacity - minOpacity) + minOpacity;
+            
+            // 随机延迟开始时间
+            const delay = Math.random() * 10;
+            
+            // 设置样式
+            star.style.cssText = `
+              left: ${x}%;
+              top: ${y}%;
+              width: ${finalSize}px;
+              height: ${finalSize}px;
+              --duration: ${duration}s;
+              --opacity: ${opacity};
+              animation-delay: ${delay}s;
+            `;
+            
+            stars.appendChild(star);
+          }
+        }
+      };
+      
+      // 创建不同大小的星星，均匀分布在各个区域
+      createStars(1, 450, [0.4, 0.7], [1.2, 2.5]);    // 小星星，亮度较低，闪烁快
+      createStars(2, 300, [0.5, 0.8], [1.5, 3.0]);    // 中小星星
+      createStars(3, 110, [0.6, 0.9], [2.0, 3.5]);    // 中等星星
+      createStars(4, 40, [0.7, 1.0], [2.5, 4.0]);    // 大星星，较亮，闪烁较慢
+    }
+    
+    // 页面加载完成后生成星空
+    window.addEventListener('load', function() {
+      generateStars();
+    });
+    </script>
+    
+    <!-- 添加鼠标跟踪文字效果 -->
+    <script src="textTrail.js"></script>
+    
+    <style>
+        /* 添加上下浮动动画 */
+        @keyframes float {
+            0% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-12px);
+            }
+            100% {
+                transform: translateY(0);
+            }
+        }
+        
+        /* 提示图片样式 */
+        .prompt-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000; /* 确保显示在最顶层 */
+            pointer-events: none; /* 允许点击穿透到下面的元素 */
+            opacity: 1;
+            transition: opacity 0.5s ease-out; /* 缩短淡出过渡效果到0.5秒 */
+        }
+        
+        /* 当书本打开时，提示图片淡出消失 */
+        .prompt-container.fade-out {
+            opacity: 0;
+        }
+        
+        .prompt-image {
+            max-width: 50%; /* 调整图片尺寸为50% */
+            max-height: 50vh;
+            object-fit: contain;
+            animation: float 3s ease-in-out infinite; /* 添加上下浮动动画，3秒一个周期 */
+        }
+        
+        /* 自定义光标样式 */
+        body {
+            cursor: none !important; /* 强制隐藏默认鼠标光标 */
+        }
+        
+        html, body, * {
+            cursor: none !important; /* 对所有元素强制隐藏默认光标 */
+        }
+        
+        #cursor {
+            position: fixed;
+            width: 60px;
+            height: 60px;
+            pointer-events: none; /* 使光标不会干扰点击事件 */
+            z-index: 9999; /* 保持光标在最顶层 */
+            transform: translate(-50%, -50%); /* 居中对齐 */
+        }
+        
+        /* 调试辅助样式 - 显示点击区域边界 */
+        .debug .left-click-area,
+        .debug .right-click-area {
+            background-color: rgba(255, 0, 0, 0.1);
+            border: 1px dashed #ff0000;
+        }
+        
+        /* 左侧点击区域 */
+        .left-click-area {
+            position: fixed;
+            top: 0;
+            left: 30%; /* 将区域向右平移，从左侧0%移动到30% */
+            width: 30%; /* 保持宽度不变 */
+            height: 100%;
+            z-index: 900; /* 提高z-index确保可点击 */
+            pointer-events: none; /* 初始状态下禁用点击 */
+            opacity: 0; /* 初始状态下隐藏 */
+            transition: opacity 0.5s ease 2s; /* 添加2秒延迟，等待书本完全展开 */
+        }
+        
+        /* 右侧点击区域 - 与左侧轴对称 */
+        .right-click-area {
+            position: fixed;
+            top: 0;
+            right: 20%; /* 再向左移动5%，原来是15% */
+            width: 30%; /* 与左侧区域相同宽度 */
+            height: 100%;
+            z-index: 900; /* 提高z-index确保可点击 */
+            pointer-events: none; /* 初始状态下禁用点击 */
+            opacity: 0; /* 初始状态下隐藏 */
+            transition: opacity 0.5s ease 2s; /* 添加2秒延迟，等待书本完全展开 */
+        }
+        
+        /* 当书本打开时激活点击区域 */
+        .book.opened ~ .left-click-area,
+        .book.opened ~ .right-click-area {
+            pointer-events: auto; /* 启用点击 */
+            opacity: 1; /* 可以设置为低透明度，方便调试 */
+        }
+        
+        /* 遮罩层样式 */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* 调整透明度为0.5（50%不透明度） */
+            z-index: 700; /* 在图片下方，其他元素上方 */
+            opacity: 0;
+            pointer-events: none; /* 允许点击穿透 */
+            transition: opacity 0.6s ease;
+        }
+        
+        /* 遮罩显示状态 */
+        .overlay.show {
+            opacity: 1;
+        }
+        
+        /* 飞出图片样式 */
+        .fly-image {
+            position: fixed;
+            left: -100%; /* 初始位置在视口左侧外 */
+            top: 50%;
+            transform: translateY(-50%);
+            max-height: calc(90vh * 1.25); /* 将高度略微增加到1.25倍 */
+            max-width: calc(60% * 1.25); /* 将宽度略微增加到1.25倍 */
+            z-index: 800;
+            transition: left 2.5s ease-out; /* 改为平滑减速缓动，移除弹跳效果 */
+        }
+        
+        /* 右侧飞出图片样式 - 不再水平翻转 */
+        .fly-image-right {
+            position: fixed;
+            right: -100%; /* 初始位置在视口右侧外 */
+            top: 50%;
+            transform: translateY(-50%); /* 垂直居中，移除水平翻转 */
+            max-height: calc(90vh * 1.25); /* 将高度略微增加到1.25倍 */
+            max-width: calc(60% * 1.25); /* 将宽度略微增加到1.25倍 */
+            z-index: 800;
+            transition: right 2.5s ease-out; /* 改为平滑减速缓动，移除弹跳效果 */
+        }
+        
+        /* 飞出图片的显示状态 */
+        .fly-image.show {
+            left: 50%; /* 飞到视口中心 */
+            transform: translate(-50%, -50%) scale(1.25); /* 居中对齐并稍微增加放大倍数到1.25 */
+        }
+        
+        /* 右侧飞出图片的显示状态 */
+        .fly-image-right.show {
+            right: 50%; /* 飞到视口中心 */
+            transform: translate(50%, -50%) scale(1.25); /* 居中对齐，保留放大比例，移除水平翻转 */
+        }
+        
+        /* 开始探索按钮样式 - 左侧和右侧 */
+        .explore-button,
+        .explore-button-right {
+            position: fixed;
+            bottom: -100px; /* 初始位置在屏幕下方外部 */
+            left: 0;
+            right: 0;
+            margin-left: auto;
+            margin-right: auto;
+            width: 280px; /* 设置固定宽度 */
+            z-index: 850; /* 确保在合适的层级 */
+            transition: bottom 1.5s ease-out, transform 0.3s ease; /* 添加transform过渡效果 */
+            display: block; /* 确保元素为块级显示 */
+            cursor: pointer;
+        }
+        
+        /* 开始探索按钮的显示状态 */
+        .explore-button.show,
+        .explore-button-right.show {
+            bottom: 30px; /* 最终位置在屏幕底部上方30px */
+        }
+        
+        /* 开始探索按钮悬停效果 */
+        .explore-button:hover,
+        .explore-button-right:hover {
+            transform: scale(1.1); /* 悬停时放大10%，移除translateX */
+            filter: brightness(1.05); /* 稍微提高亮度 */
+        }
+    </style>
+</head>
+
+<body>
+    <div id="cursor-container"></div>
+    <img id="cursor" src="./星星.png" alt="星星光标">
+    <div class="fixed-button">
+        <a href="../index.html">
+            <img src="./返回首页.png" alt="Clickable Image">
+        </a>
+    </div>
+    <!-- 添加星空容器 -->
+    <div class="stars" id="stars"></div>
+
+    <!-- 提示图片容器 -->
+    <div class="prompt-container" id="promptContainer">
+        <img src="./提示词.png" alt="语音提示" class="prompt-image">
+    </div>
+
+    <!-- 添加遮罩层 -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- 左侧点击区域 -->
+    <div class="left-click-area" id="leftClickArea"></div>
+    
+    <!-- 右侧点击区域 -->
+    <div class="right-click-area" id="rightClickArea"></div>
+    
+    <!-- 飞出的图片 - 左侧 -->
+    <img src="./zuochu.png" alt="飞出图片" class="fly-image" id="flyImage">
+    
+    <!-- 飞出的图片 - 右侧（不再水平翻转） -->
+    <img src="./youchu.png" alt="飞出图片" class="fly-image-right" id="flyImageRight">
+
+    <!-- 开始探索按钮 - 左侧卡片对应 -->
+    <img src="./开始探索1.png" alt="开始探索" class="explore-button" id="exploreButton">
+    
+    <!-- 开始探索按钮 - 右侧卡片对应 -->
+    <img src="./开始探索2.png" alt="开始探索" class="explore-button-right" id="exploreButtonRight">
+
+    <div class="book">
+        <div class="back"></div>
+        <div class="page6 r"></div>
+        <div class="page5 l"></div>
+        <div class="page4 r"></div>
+        <div class="page3 l"></div>
+        <div class="page2 r"></div>
+        <div class="page1 l"></div>
+        <div class="front"></div>
+    </div>
+    
+    
+    <script>
+        // 书本元素
+        const book = document.querySelector('.book');
+        // 提示图片容器
+        const promptContainer = document.getElementById('promptContainer');
+        // 飞出图片元素 - 左侧
+        const flyImage = document.getElementById('flyImage');
+        // 左侧点击区域
+        const leftClickArea = document.getElementById('leftClickArea');
+        // 飞出图片元素 - 右侧
+        const flyImageRight = document.getElementById('flyImageRight');
+        // 右侧点击区域
+        const rightClickArea = document.getElementById('rightClickArea');
+        // 遮罩层
+        const overlay = document.getElementById('overlay');
+        // 开始探索按钮 - 左侧
+        const exploreButton = document.getElementById('exploreButton');
+        // 开始探索按钮 - 右侧
+        const exploreButtonRight = document.getElementById('exploreButtonRight');
+        
+        // 简化书本点击事件，使用一种直接的方式
+        book.onclick = function() {
+            // 打开书本并且不再关闭
+            this.classList.add('opened');
+            // 添加淡出类，让提示图片消失
+            promptContainer.classList.add('fade-out');
+            
+            // 延迟启用点击区域，等待书本完全展开
+            setTimeout(function() {
+                // 启用左侧点击区域，同时设置其可见性
+                leftClickArea.style.pointerEvents = 'auto';
+                leftClickArea.style.opacity = '1';
+                // 启用右侧点击区域，同时设置其可见性
+                rightClickArea.style.pointerEvents = 'auto';
+                rightClickArea.style.opacity = '1';
+            }, 2000); // 2秒延迟，与书本展开动画时间匹配
+            
+            console.log('魔法书已通过点击打开！');
+            return false; // 阻止默认行为和冒泡
+        };
+        
+        // 左侧区域点击事件
+        leftClickArea.addEventListener('click', function() {
+            // 显示飞出图片
+            flyImage.classList.add('show');
+            // 显示遮罩
+            overlay.classList.add('show');
+            // 关闭书本
+            book.classList.remove('opened');
+            // 隐藏两侧点击区域
+            leftClickArea.style.pointerEvents = 'none';
+            leftClickArea.style.opacity = '0';
+            rightClickArea.style.pointerEvents = 'none';
+            rightClickArea.style.opacity = '0';
+            
+            // 延迟显示开始探索按钮，让左侧卡片先飞出
+            setTimeout(function() {
+                exploreButton.classList.add('show');
+            }, 1000); // 1秒后显示按钮
+            
+            console.log('左侧区域被点击，图片飞出，书本关闭，点击区域隐藏！');
+        });
+        
+        // 右侧区域点击事件 - 确保事件被正确注册
+        if (rightClickArea) {
+            rightClickArea.addEventListener('click', function(e) {
+                console.log('右侧区域被点击! 坐标:', e.clientX, e.clientY);
+                
+                // 显示飞出图片
+                if (flyImageRight) {
+                    flyImageRight.classList.add('show');
+                    // 显示遮罩
+                    overlay.classList.add('show');
+                    // 关闭书本
+                    book.classList.remove('opened');
+                    // 隐藏两侧点击区域
+                    leftClickArea.style.pointerEvents = 'none';
+                    leftClickArea.style.opacity = '0';
+                    rightClickArea.style.pointerEvents = 'none';
+                    rightClickArea.style.opacity = '0';
+                    
+                    // 延迟显示右侧开始探索按钮，让右侧卡片先飞出
+                    setTimeout(function() {
+                        exploreButtonRight.classList.add('show');
+                    }, 1000); // 1秒后显示按钮
+                    
+                    console.log('右侧图片飞出指令已发送，书本关闭，点击区域隐藏！');
+                } else {
+                    console.error('右侧飞出图片元素不存在!');
+                }
+            });
+            
+            // 添加额外事件监听器确保事件被捕获
+            rightClickArea.addEventListener('mousedown', function() {
+                console.log('右侧区域mousedown事件触发');
+            });
+        } else {
+            console.error('右侧点击区域元素不存在!');
+        }
+        
+        // 移除所有鼠标悬停相关的事件监听器
+        book.removeEventListener('mouseenter', null);
+        book.removeEventListener('mouseleave', null);
+        
+        // 语音识别功能
+        let recognition = null;
+        
+        // 初始化语音识别
+        function initSpeechRecognition() {
+            // 检查浏览器是否支持语音识别
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                // 创建语音识别实例
+                recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+                
+                // 设置语音识别参数
+                recognition.continuous = true; // 持续监听
+                recognition.interimResults = false; // 只返回最终结果
+                recognition.lang = 'zh-CN'; // 设置语言为中文
+                
+                // 语音识别结果处理
+                recognition.onresult = function(event) {
+                    const result = event.results[event.results.length - 1][0].transcript.trim().toLowerCase();
+                    console.log('识别结果:', result);
+                    
+                    // 检查是否包含"打开魔法书"命令
+                    if (result.includes('打开魔法书')) {
+                        // 打开书本并且不再关闭
+                        book.classList.add('opened');
+                        // 添加淡出类，让提示图片消失
+                        promptContainer.classList.add('fade-out');
+                        
+                        // 延迟启用点击区域，等待书本完全展开
+                        setTimeout(function() {
+                            // 启用左侧点击区域，同时设置其可见性
+                            leftClickArea.style.pointerEvents = 'auto';
+                            leftClickArea.style.opacity = '1';
+                            // 启用右侧点击区域，同时设置其可见性
+                            rightClickArea.style.pointerEvents = 'auto';
+                            rightClickArea.style.opacity = '1';
+                        }, 2000); // 2秒延迟，与书本展开动画时间匹配
+                        
+                        console.log('魔法书已打开！');
+                    }
+                };
+                
+                // 处理语音识别错误
+                recognition.onerror = function(event) {
+                    console.error('语音识别错误:', event.error);
+                    
+                    // 如果出错，5秒后尝试重新启动
+                    if (event.error !== 'aborted') {
+                        setTimeout(() => {
+                            try {
+                                recognition.start();
+                            } catch (e) {
+                                console.error('重新启动语音识别失败:', e);
+                            }
+                        }, 5000);
+                    }
+                };
+                
+                // 处理语音识别结束
+                recognition.onend = function() {
+                    // 自动重新开始语音识别
+                    try {
+                        recognition.start();
+                    } catch (e) {
+                        console.error('重新启动语音识别失败:', e);
+                    }
+                };
+                
+                // 启动语音识别
+                try {
+                    recognition.start();
+                    console.log('语音识别已启动，请说"打开魔法书"');
+                } catch (e) {
+                    console.error('启动语音识别失败:', e);
+                }
+                
+            } else {
+                // 浏览器不支持语音识别
+                console.error('您的浏览器不支持语音识别功能');
+            }
+        }
+        
+        // 鼠标光标跟随功能
+        document.addEventListener('mousemove', function(e) {
+            const cursor = document.getElementById('cursor');
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+        });
+        
+        // 添加光标旋转动画
+        let cursorRotation = 0;
+        const cursorRotationSpeed = 0.5; // 减慢光标旋转速度
+        
+        function updateCursorRotation() {
+            cursorRotation = (cursorRotation + cursorRotationSpeed) % 360;
+            const cursor = document.getElementById('cursor');
+            cursor.style.transform = `translate(-50%, -50%) rotate(${cursorRotation}deg)`;
+            requestAnimationFrame(updateCursorRotation);
+        }
+        
+        // 页面加载完成后
+        document.addEventListener('DOMContentLoaded', function() {
+            // 延迟一小段时间再启动语音识别，确保页面完全加载
+            setTimeout(initSpeechRecognition, 1000);
+            // 启动光标旋转动画
+            updateCursorRotation();
+            
+            // 测试右侧点击区域和飞出图片功能
+            console.log("调试信息 - 点击区域和飞出图片元素:");
+            console.log("左侧点击区域:", leftClickArea);
+            console.log("右侧点击区域:", rightClickArea);
+            console.log("左侧飞出图片:", flyImage);
+            console.log("右侧飞出图片:", flyImageRight);
+            
+            // 为方便调试，可以添加下面的代码来启用调试模式（取消注释使用）
+            // document.body.classList.add('debug');
+        });
+
+        // 添加开始探索按钮点击事件
+        exploreButton.addEventListener('click', function() {
+            // console.log('左侧开始探索按钮被点击！');
+            // 这里可以添加跳转到其他页面或执行其他操作的代码
+            window.location.href = '../WeDream-produce/index.html';
+        });
+        
+        // 添加右侧开始探索按钮点击事件
+        exploreButtonRight.addEventListener('click', function() {
+            // console.log('右侧开始探索按钮被点击！');
+            // 这里可以添加跳转到其他页面或执行其他操作的代码
+         window.location.href = '../WeDream-test/index.html';
+        });
+    </script>
+ <script>
+    // 自定义光标跟随效果
+    document.addEventListener('DOMContentLoaded', function() {
+        const cursor = document.getElementById('cursor');
+        
+        // 跟随鼠标移动
+        document.addEventListener('mousemove', function(e) {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+            
+            // 创建拖尾效果
+            if (Math.random() > 0.7) { // 控制拖尾生成频率
+                createTrailEffect(e.clientX, e.clientY);
+            }
+        });
+        
+        // 鼠标的最后位置
+        let lastMouseX = 0;
+        let lastMouseY = 0;
+        
+        // 跟踪鼠标位置，用于滚动时更新光标
+        document.addEventListener('mousemove', function(e) {
+            lastMouseX = e.clientX;
+            lastMouseY = e.clientY;
+        });
+        
+        // 创建拖尾效果
+        function createTrailEffect(x, y) {
+            const trail = document.createElement('div');
+            trail.className = 'cursor-trail';
+            
+            // 设置位置和随机旋转
+            trail.style.left = x + 'px';
+            trail.style.top = y + 'px';
+            trail.style.transform = `translate(-50%, -50%) rotate(${Math.random() * 360}deg)`;
+            
+            document.body.appendChild(trail);
+            
+            // 淡出动画完成后移除元素
+            setTimeout(function() {
+                if (trail && trail.parentNode) {
+                    trail.parentNode.removeChild(trail);
+                }
+            }, 800);
+        }
+        
+        // 处理页面滚动时的光标位置
+        window.addEventListener('scroll', function() {
+            // 在滚动时更新光标位置
+            cursor.style.left = lastMouseX + 'px';
+            cursor.style.top = lastMouseY + 'px';
+            
+            // 在滚动时也可以创建拖尾效果
+            if (Math.random() > 0.9) { // 滚动时降低拖尾生成频率
+                createTrailEffect(lastMouseX, lastMouseY);
+            }
+        });
+        
+        // 鼠标点击效果
+        document.addEventListener('mousedown', function() {
+            cursor.style.transform = 'translate(-50%, -50%) scale(0.8)';
+        });
+        
+        document.addEventListener('mouseup', function() {
+            cursor.style.transform = 'translate(-50%, -50%) scale(1)';
+        });
+        
+        // 光标悬停在可点击元素上的效果
+        document.querySelectorAll('a, button, .option, .submit').forEach(item => {
+            item.addEventListener('mouseenter', function() {
+                cursor.style.transform = 'translate(-50%, -50%) scale(1.2)';
+            });
+            
+            item.addEventListener('mouseleave', function() {
+                cursor.style.transform = 'translate(-50%, -50%) scale(1)';
+            });
+        });
+    });
+</script>
+<!-- 引入通用光标效果JS -->
+<script src="../cursor-effects.js"></script>
+</body>
+
+</html>

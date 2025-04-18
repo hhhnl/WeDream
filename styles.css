@@ -1,0 +1,172 @@
+* {
+    padding: 0;
+    margin: 0;
+}
+
+/* 隐藏默认鼠标光标 */
+body {
+    height: 100%;
+    cursor: none;
+}
+
+#space {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1; /* 将z-index调整回底层 */
+    pointer-events: none; /* 让用户点击可以穿透canvas */
+}
+
+#content {
+    position: relative;
+    z-index: 2; /* 内容在canvas上方 */
+}
+
+#content img {
+    width: 100%;
+    height: auto;
+    display: block;
+    margin-top: 0px;
+}
+
+#content .title-image {
+    position: fixed;
+    top: calc(50% - 20px); /* 向上移动20px */
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: auto;
+    max-width: 88%; /* Increased from 80% to 88% (80% * 1.1 = 88%) */
+    height: auto;
+    display: block;
+    z-index: 1.1; /* 确保在最底层 */
+}
+
+#content .base-image {
+    position: relative;
+    z-index: 2;
+}
+
+#content .overlay-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin-top: 0px;
+    z-index: 3; /* 2.png放在较高层 */
+}
+
+#content .second-overlay-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin-top: 0px;
+    z-index: 4; /* 3.png放在最高层 */
+}
+
+#content .third-overlay-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin-top: 0px;
+}
+
+#content .fourth-overlay-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin-top: 0px;
+}
+
+#content .fifth-overlay-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin-top: 0px;
+}
+
+/* 自定义光标样式 */
+#cursor {
+    position: fixed;
+    width: 60px;
+    height: 60px;
+    pointer-events: none; /* 使光标不会干扰点击事件 */
+    z-index: 1000000; /* 提高z-index至1000000，确保光标在所有页面的最顶层 */
+    transform: translate(-50%, -50%); /* 居中对齐 */
+    /* 添加淡黄色发光效果 */
+    filter: drop-shadow(0 0 7px rgba(255, 255, 150, 0.9)) drop-shadow(0 0 14px rgba(255, 240, 120, 0.7));
+    animation: cursor-glow 2s ease-in-out infinite alternate;
+}
+
+/* 光标发光动画 */
+@keyframes cursor-glow {
+    0% {
+        filter: drop-shadow(0 0 7px rgba(255, 255, 150, 0.9)) drop-shadow(0 0 12px rgba(255, 240, 120, 0.7));
+    }
+    100% {
+        filter: drop-shadow(0 0 10px rgba(255, 255, 150, 1)) drop-shadow(0 0 20px rgba(255, 240, 120, 0.9));
+    }
+}
+
+/* 光标拖尾样式 */
+.cursor-trail {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background-image: url('星星.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    pointer-events: none;
+    z-index: 999999; /* 也提高拖尾的z-index，但稍低于光标本身 */
+    opacity: 0.8;
+    transform: translate(-50%, -50%);
+    filter: drop-shadow(0 0 4px rgba(255, 255, 150, 0.7));
+    animation: trail-fade 0.8s forwards ease-out;
+}
+
+/* 拖尾淡出动画 */
+@keyframes trail-fade {
+    0% {
+        opacity: 0.8;
+        transform: translate(-50%, -50%) scale(0.5);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.2);
+    }
+}
+
+#flower-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9000; /* 在内容之上，光标之下 */
+    pointer-events: none; /* 让用户点击可以穿透canvas */
+} 
+ /* 固定按钮样式 */
+ .fixed-button {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+/* 鼠标悬停时按钮放大效果 */
+.fixed-button:hover {
+    transform: scale(1.1);
+}
+
+/* 按钮图片样式 */
+.fixed-button img {
+    max-width: 50px;
+    max-height: 50px;
+}
+
+/* 隐藏音频元素 */
+audio {
+    display: none;
+}

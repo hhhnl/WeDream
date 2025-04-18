@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>梦境人格测试</title>
+    <link rel="icon" href="../favicon.ico" type="favicon.ico">
+    <!-- 兼容旧版本浏览器 -->
+    <link rel="shortcut icon" href="../favicon.ico" type="favicon.ico">
+    <link rel="stylesheet" href="css/index.css">
+    <!-- 引入通用光标效果CSS -->
+    <link rel="stylesheet" href="../cursor-effects.css">
+    <style>
+        /* 添加页面过渡效果 */
+        body {
+            transition: opacity 0.5s ease;
+            cursor: none; /* 隐藏默认光标 */
+        }
+        .fade-out {
+            opacity: 0;
+        }
+        
+        /* 隐藏滚动条但保留滚动功能 */
+        html, body {
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE and Edge */
+            overflow-x: hidden; /* 隐藏水平滚动条 */
+        }
+        
+        /* Chrome, Safari and Opera */
+        ::-webkit-scrollbar {
+            display: none;
+        }
+        
+        /* 确保所有可点击元素不显示手形光标 */
+        a, button, .option, .submit, .result-btn, [onclick], [role="button"] {
+            cursor: none !important;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="space"></canvas>
+        <!-- 自定义星星光标 -->
+        <img id="cursor" src="星星.png" alt="星星光标">
+    <div class="scroll-indicator">
+        <img src="向下滑动.png" alt="向下滑动" id="scrollIndicator" width="150px">
+    </div>
+    <div class="fixed-button">
+        <a href="../WeDream-catalog/index.html">
+            <img src="./images/返回目录.png" alt="Clickable Image">
+        </a>
+    </div>
+    <div class="fixed-button1" id="playButton">
+        <img src="../image/音乐.png" alt="Play Music">
+    </div>
+    <!-- 音频元素 -->
+    <audio id="music" autoplay loop>
+        <!-- 请替换为你实际的音乐文件链接 -->
+        <source src="../sercepolska.mp3" type="audio/mpeg">
+    </audio>
+    
+    <div class="image-container">
+        <div class="question-title">
+            <div class="one">
+                <img src="images/title/1.png" alt="title" width="500px">
+                <img src="images/option/1/1a.png" alt="A" class="option a" width="450px">
+                <img src="images/option/1/1b.png" alt="B" class="option b" width="450px">
+                <img src="images/option/1/1c.png" alt="C" class="option c" width="450px">
+                <img src="images/option/1/1d.png" alt="D" class="option d" width="450px">
+            </div>
+            <div class="tow">
+                <img src="images/title/2.png" alt="title" width="500px">
+                <img src="images/option/2/2a.png" alt="A" class="option a" width="450px">
+                <img src="images/option/2/2b.png" alt="B" class="option b" width="450px">
+                <img src="images/option/2/2c.png" alt="C" class="option c" width="450px">
+                <img src="images/option/2/2d.png" alt="D" class="option d" width="450px">
+            </div>
+            <div class="three">
+                <img src="images/title/3.png" alt="title" width="500px">
+                <img src="images/option/3/3a.png" alt="A" class="option a" width="450px">
+                <img src="images/option/3/3b.png" alt="B" class="option b" width="450px">
+                <img src="images/option/3/3c.png" alt="C" class="option c" width="450px">
+                <img src="images/option/3/3d.png" alt="D" class="option d" width="450px">
+            </div>
+            <div class="four">
+                <img src="images/title/4.png" alt="title" width="800px">
+                <img src="images/option/4/4a.png" alt="A" class="option a" width="450px">
+                <img src="images/option/4/4b.png" alt="B" class="option b" width="450px">
+                <img src="images/option/4/4c.png" alt="C" class="option c" width="450px">
+                <img src="images/option/4/4d.png" alt="D" class="option d" width="450px">
+            </div>
+            <div class="five">
+                <img src="images/title/5.png" alt="title" width="500px">
+                <img src="images/option/5/5a.png" alt="A" class="option a" width="450px">
+                <img src="images/option/5/5b.png" alt="B" class="option b" width="450px">
+                <img src="images/option/5/5c.png" alt="C" class="option c" width="450px">
+                <img src="images/option/5/5d.png" alt="D" class="option d" width="450px">
+            </div>
+            <div class="six">
+                <img src="images/title/6.png" alt="title" width="500px">
+                <img src="images/option/6/6a.png" alt="A" class="option a" width="450px">
+                <img src="images/option/6/6b.png" alt="B" class="option b" width="450px">
+                <img src="images/option/6/6c.png" alt="C" class="option c" width="450px">
+                <img src="images/option/6/6d.png" alt="D" class="option d" width="450px">
+            </div>
+            <div class="seven">
+                <img src="images/title/7.png" alt="title" width="500px">
+                <img src="images/option/7/7a.png" alt="A" class="option a" width="450px">
+                <img src="images/option/7/7b.png" alt="B" class="option b" width="450px">
+                <img src="images/option/7/7c.png" alt="C" class="option c" width="450px">
+                <img src="images/option/7/7d.png" alt="D" class="option d" width="450px">
+            </div>
+            <div class="eight">
+                <img src="images/title/8.png" alt="title" width="500px">
+                <img src="images/option/8/8a.png" alt="A" class="option a" width="450px">
+                <img src="images/option/8/8b.png" alt="B" class="option b" width="450px">
+                <img src="images/option/8/8c.png" alt="C" class="option c" width="450px">
+                <img src="images/option/8/8d.png" alt="D" class="option d" width="450px">
+            </div>
+            <img src="images/title/获取结果按钮.png" alt="提交" id="submitBtn" class="submit result-btn" width="400px">
+        </div>
+        <img src="回答问题测试全.png" alt="全屏图片" class="bgimg">
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // 确保DOM加载完成后才执行
+            console.log("DOM已加载，初始化滚动指示器...");
+            
+            // 获取滚动指示器元素
+            const scrollIndicator = document.getElementById('scrollIndicator');
+            
+            // 确认元素存在
+            if (scrollIndicator) {
+                console.log("滚动指示器元素已找到");
+                
+                // 设置初始状态
+                scrollIndicator.style.opacity = "1";
+                
+                // 添加滚动事件监听器
+                window.addEventListener('scroll', function() {
+                    const scrollPosition = window.scrollY;
+                    console.log("滚动位置:", scrollPosition);
+                    
+                    // 随着滚动逐渐淡出
+                    if (scrollPosition > 0) {
+                        // 更短的淡出距离，200px内完全消失
+                        const opacity = Math.max(0, 1 - scrollPosition / 200);
+                        scrollIndicator.style.opacity = opacity;
+                        
+                        console.log("设置不透明度:", opacity);
+                        
+                        // 当几乎不可见时完全隐藏
+                        if (opacity < 0.1) {
+                            scrollIndicator.style.display = 'none';
+                        }
+                    } else {
+                        // 回到顶部时重置
+                        scrollIndicator.style.opacity = "1";
+                        scrollIndicator.style.display = 'block';
+                    }
+                });
+                
+                // 10秒后自动淡出滚动指示器
+                setTimeout(function() {
+                    console.log("10秒时间到，开始淡出滚动指示器");
+                    
+                    // 创建淡出动画效果
+                    let opacity = 1;
+                    const fadeInterval = setInterval(function() {
+                        opacity -= 0.05;
+                        scrollIndicator.style.opacity = opacity;
+                        
+                        if (opacity <= 0) {
+                            clearInterval(fadeInterval);
+                            scrollIndicator.style.display = 'none';
+                            console.log("滚动指示器已完全淡出");
+                        }
+                    }, 50); // 每50毫秒减少一次不透明度，总共1秒完成淡出
+                    
+                }, 10000); // 10秒后执行
+                
+                // 手动触发一次滚动事件，以适应页面可能已经滚动的情况
+                window.dispatchEvent(new Event('scroll'));
+            } else {
+                console.error("未找到滚动指示器元素!");
+            }
+
+            // Add hover effect to the submit button
+            const submitBtn = document.getElementById('submitBtn');
+            
+            submitBtn.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateX(-50%) scale(1.1)';
+            });
+            
+            submitBtn.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateX(-50%)';
+            });
+
+            let answers = []; // 用于记录每个题目选中的答案
+
+            // 处理选项点击事件
+            document.querySelectorAll('.option').forEach(option => {
+                option.addEventListener('click', function () {
+                    const questionDiv = this.closest('div'); // 获取当前选项所属的题目容器
+                    const questionId = questionDiv.className; // 使用题目容器的类名作为题目ID
+
+                    // 取消其他选项的选中状态
+                    questionDiv.querySelectorAll('.option').forEach(opt => {
+                        const originalSrc = opt.src.replace(/([a-d]){2}\.png/, '$1.png'); // 恢复为未选中图片路径
+                        opt.src = originalSrc;
+                        opt.classList.remove('selected'); // 移除选中状态
+                    });
+
+                    // 设置当前选项为选中状态
+                    const selectedSrc = this.src.replace('.png', `${this.alt.toLowerCase()}.png`); // 替换为选中图片路径
+                    this.src = selectedSrc;
+                    this.classList.add('selected'); // 添加选中状态
+
+                    // 记录选中的答案
+                    answers.push(this.alt); // 使用选项的 alt 属性作为答案
+                });
+            });
+
+            // 提交按钮点击事件
+            let Aindex = 0;
+            let Bindex = 0;
+            let Cindex = 0;
+            let Dindex = 0;
+
+            document.querySelector('#submitBtn').addEventListener('click', function () {
+                console.log('选中的答案:', answers);
+                
+                // 验证是否完成了所有题目
+                // 获取所有题目区域
+                const questionDivs = document.querySelectorAll('.question-title > div:not(.scroll-indicator)');
+                const totalQuestions = 8; // 总共有8道题目
+                
+                // 检查每个题目是否有选中的选项
+                let answeredQuestions = 0;
+                const selectedAnswers = [];
+                
+                questionDivs.forEach(div => {
+                    if (div.querySelector('.option.selected')) {
+                        answeredQuestions++;
+                        // 记录该题选中的选项
+                        const selectedOption = div.querySelector('.option.selected').alt;
+                        selectedAnswers.push(selectedOption);
+                    }
+                });
+                
+                console.log('已回答题目数:', answeredQuestions, '总题目数:', totalQuestions);
+                console.log('已选答案:', selectedAnswers);
+                
+                // 如果没有回答所有题目，提示用户
+                if (answeredQuestions < totalQuestions) {
+                    alert('请作答完所有题目再获取结果哦~');
+                    return; // 终止后续操作
+                }
+                
+                // 如果所有题目都已回答，继续执行原有逻辑
+                alert('提交成功！');
+                
+                // 重置计数器
+                Aindex = 0;
+                Bindex = 0;
+                Cindex = 0;
+                Dindex = 0;
+                
+                // 统计答案
+                selectedAnswers.forEach(item => {
+                    if (item == 'A') {
+                        Aindex++;
+                    }
+                    if (item == 'B') {
+                        Bindex++;
+                    }
+                    if (item == 'C') {
+                        Cindex++;
+                    }
+                    if (item == 'D') {
+                        Dindex++;
+                    }
+                });
+                
+                console.log('A:', Aindex);
+                console.log('B:', Bindex);
+                console.log('C:', Cindex);
+                console.log('D:', Dindex);
+                
+                if(Aindex > Bindex && Aindex > Cindex && Aindex > Dindex){
+                    window.location.href = '结果页/结果页（烈焰征途型）/index.html';
+                }else if(Bindex > Aindex && Bindex > Cindex && Bindex > Dindex){
+                    window.location.href = '结果页/结果页（幽梦深渊型）/index.html';
+                }else if(Cindex > Aindex && Cindex > Bindex && Cindex > Dindex){
+                    window.location.href = '结果页/结果页（清风远境型）/index.html';
+                }else if(Dindex > Aindex && Dindex > Bindex && Dindex > Cindex){
+                    window.location.href = '结果页/结果页（灵感漫步型）/index.html';
+                }else{
+                    // 随机跳转
+                    const randomIndex = Math.floor(Math.random() * 4);
+                    if (randomIndex === 0) {
+                        window.location.href = '结果页/结果页（烈焰征途型）/index.html';
+                    } else if (randomIndex === 1){
+                        window.location.href = '结果页/结果页（幽梦深渊型）/index.html';
+                    } else if (randomIndex === 2) {
+                        window.location.href = '结果页/结果页（清风远境型）/index.html';
+                    } else {
+                        window.location.href = '结果页/结果页（灵感漫步型）/index.html';
+                    }
+                }
+            });
+        });
+    </script>
+
+    <script>
+        // 星空背景效果
+        document.addEventListener('DOMContentLoaded', function () {
+            const canvas = document.getElementById('space');
+            const ctx = canvas.getContext('2d');
+
+            // 设置canvas大小
+            function resizeCanvas() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+
+            // 调整大小并在窗口大小改变时重新调整
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+
+            // 星星类
+            class Star {
+                constructor() {
+                    this.reset();
+                }
+
+                reset() {
+                    this.x = Math.random() * canvas.width;
+                    this.y = Math.random() * canvas.height;
+                    this.size = Math.random() * 1.5 + 0.5;
+                    this.opacity = Math.random() * 0.5 + 0.3;
+                    this.speed = Math.random() * 0.05 + 0.01;
+                    this.blinkSpeed = Math.random() * 0.01 + 0.003;
+                    this.blinkDirection = Math.random() > 0.5 ? 1 : -1;
+                }
+
+                update() {
+                    // 闪烁效果
+                    this.opacity += this.blinkSpeed * this.blinkDirection;
+
+                    if (this.opacity >= 0.8 || this.opacity <= 0.2) {
+                        this.blinkDirection *= -1;
+                    }
+
+                    // 移动效果
+                    this.y -= this.speed;
+
+                    // 如果星星超出边界，重置它
+                    if (this.y < 0) {
+                        this.x = Math.random() * canvas.width;
+                        this.y = canvas.height;
+                    }
+                }
+
+                draw() {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+                    ctx.fill();
+                }
+            }
+
+            // 创建星星
+            const stars = [];
+            const starCount = 200;
+
+            for (let i = 0; i < starCount; i++) {
+                stars.push(new Star());
+            }
+
+            // 动画循环
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                // 绘制星星
+                stars.forEach(star => {
+                    star.update();
+                    star.draw();
+                });
+
+                requestAnimationFrame(animate);
+            }
+
+            animate();
+        });
+    </script>
+    <script>
+        const playButton = document.getElementById('playButton');
+        const music = document.getElementById('music');
+        let hasInteracted = false;
+
+        function playMusicOnInteraction() {
+            if (!hasInteracted) {
+                music.play().catch(() => {
+                    // 播放失败，可能是浏览器策略限制
+                });
+                hasInteracted = true;
+                document.removeEventListener('click', playMusicOnInteraction);
+                document.removeEventListener('touchstart', playMusicOnInteraction);
+            }
+        }
+
+        document.addEventListener('click', playMusicOnInteraction);
+        document.addEventListener('touchstart', playMusicOnInteraction);
+
+        playButton.addEventListener('click', function () {
+            if (music.paused) {
+                music.play();
+
+            } else {
+                music.pause();
+
+            }
+        });
+        
+    </script>
+    <script>
+        // 自定义光标跟随效果
+        document.addEventListener('DOMContentLoaded', function() {
+            const cursor = document.getElementById('cursor');
+            
+            // 跟随鼠标移动
+            document.addEventListener('mousemove', function(e) {
+                cursor.style.left = e.clientX + 'px';
+                cursor.style.top = e.clientY + 'px';
+                
+                // 创建拖尾效果
+                if (Math.random() > 0.7) { // 控制拖尾生成频率
+                    createTrailEffect(e.clientX, e.clientY);
+                }
+            });
+            
+            // 鼠标的最后位置
+            let lastMouseX = 0;
+            let lastMouseY = 0;
+            
+            // 跟踪鼠标位置，用于滚动时更新光标
+            document.addEventListener('mousemove', function(e) {
+                lastMouseX = e.clientX;
+                lastMouseY = e.clientY;
+            });
+            
+            // 创建拖尾效果
+            function createTrailEffect(x, y) {
+                const trail = document.createElement('div');
+                trail.className = 'cursor-trail';
+                
+                // 设置位置和随机旋转
+                trail.style.left = x + 'px';
+                trail.style.top = y + 'px';
+                trail.style.transform = `translate(-50%, -50%) rotate(${Math.random() * 360}deg)`;
+                
+                document.body.appendChild(trail);
+                
+                // 淡出动画完成后移除元素
+                setTimeout(function() {
+                    if (trail && trail.parentNode) {
+                        trail.parentNode.removeChild(trail);
+                    }
+                }, 800);
+            }
+            
+            // 处理页面滚动时的光标位置
+            window.addEventListener('scroll', function() {
+                // 在滚动时更新光标位置
+                cursor.style.left = lastMouseX + 'px';
+                cursor.style.top = lastMouseY + 'px';
+                
+                // 在滚动时也可以创建拖尾效果
+                if (Math.random() > 0.9) { // 滚动时降低拖尾生成频率
+                    createTrailEffect(lastMouseX, lastMouseY);
+                }
+            });
+            
+            // 鼠标点击效果
+            document.addEventListener('mousedown', function() {
+                cursor.style.transform = 'translate(-50%, -50%) scale(0.8)';
+            });
+            
+            document.addEventListener('mouseup', function() {
+                cursor.style.transform = 'translate(-50%, -50%) scale(1)';
+            });
+            
+            // 光标悬停在可点击元素上的效果
+            document.querySelectorAll('a, button, .option, .submit').forEach(item => {
+                item.addEventListener('mouseenter', function() {
+                    cursor.style.transform = 'translate(-50%, -50%) scale(1.2)';
+                });
+                
+                item.addEventListener('mouseleave', function() {
+                    cursor.style.transform = 'translate(-50%, -50%) scale(1)';
+                });
+            });
+        });
+    </script>
+    <!-- 引入通用光标效果JS -->
+    <script src="../cursor-effects.js"></script>
+</body>
+
+</html>

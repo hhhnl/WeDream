@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="Zh-CN">
+<head>
+	<meta charset="utf-8">
+    <title>结果页（灵感漫步型）</title>
+    <!-- 性能优化：使用预连接提示 -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="../star-cursor.css">
+    <link rel="icon" href="favicon.ico" type="favicon.ico">
+    <!-- 兼容旧版本浏览器 -->
+    <link rel="shortcut icon" href="favicon.ico" type="favicon.ico">
+    <!-- 性能优化：预加载关键图片资源 -->
+    <link rel="preload" href="../../星星.png" as="image">
+    <script>
+    // 页面加载完成标志
+    let pageReady = false;
+    
+    // 全局变量，跟踪信封动画状态
+    window.isAnimating = false;
+    let animationCompleted = false;
+    
+    // 要预加载的图片路径
+    const imagePaths = [
+      'img/左1.png',
+      'img/左2.png',
+      'img/新建组.png',
+      'img/向下滑动.png',
+      'img/before.png',
+      'img/after.png',
+      'img/letter_bg.png'
+    ];
+    
+    // 预加载图片，并在所有图片加载完成后再初始化
+    function preloadImages(callback) {
+      const images = [...imagePaths];
+      let loadedCount = 0;
+      const totalImages = images.length;
+      
+      function onImageLoad() {
+        loadedCount++;
+        if (loadedCount >= totalImages) {
+          callback();
+        }
+      }
+      
+      // 为每个图片创建Image对象并设置加载事件
+      images.forEach(src => {
+        const img = new Image();
+        img.onload = onImageLoad;
+        img.onerror = onImageLoad; // 即使加载失败也继续
+        img.src = src;
+      });
+      
+      // 设置超时，即使图片没有全部加载完也继续
+      setTimeout(() => {
+        if (loadedCount < totalImages) {
+          console.log('部分图片加载超时，但继续执行');
+          callback();
+        }
+      }, 3000);
+    }
+    
+    // 初始化页面
+    function initPage() {
+      if (pageReady) return; // 防止重复初始化
+      pageReady = true;
+      
+      // 获取DOM元素
+      const formWrap = document.getElementById('form-wrap');
+      const leftImage = document.querySelector('.left-flying-image');
+      const rightImage = document.querySelector('.right-flying-image');
+      const leftImage2 = document.querySelector('.left-flying-image2');
+      const bottomImage = document.querySelector('.bottom-flying-image');
+      
+      // 设置图片初始状态
+      function setupImages() {
+        // 使用transform3d强制硬件加速
+        const setInitialState = (element, props) => {
+          for (const key in props) {
+            element.style[key] = props[key];
+          }
+        };
+        
+        setInitialState(leftImage, {
+          opacity: '0',
+          left: '-330px',
+          top: '20%',
+          transform: 'translateY(-50%) translateZ(0) rotate(-15deg) scale(1.0)',
+          visibility: 'visible'
+        });
+        
+        setInitialState(leftImage2, {
+          opacity: '0',
+          left: '-600px',
+          top: 'calc(85% - 100px)',
+          transform: 'translateY(-50%) translateZ(0) rotate(-15deg) scale(1.68)',
+          visibility: 'visible'
+        });
+        
+        setInitialState(rightImage, {
+          opacity: '0',
+          right: '-975px',
+          top: 'calc(75% - 150px)',
+          transform: 'translateY(-50%) translateZ(0) rotate(15deg) scale(1.2)',
+          visibility: 'visible'
+        });
+        
+        setInitialState(bottomImage, {
+          opacity: '0',
+          top: '-200px',
+          left: '50%',
+          transform: 'translateX(-50%) translateZ(0) scale(1.4)',
+          visibility: 'visible'
+        });
+      }
+      
+      // 初始设置
+      setupImages();
+      
+      // 添加动画处理
+      let isAnimating = false;
+      let animationCompleted = false; // 标记所有动画是否已经完成
+      
+      // 改用点击事件触发动画，而不是鼠标悬停
+      formWrap.addEventListener('click', function(e) {
+        // 防止重复触发
+        if (window.isAnimating) return;
+        window.isAnimating = true;
+        animationCompleted = false; // 重置动画完成状态
+        
+        console.log('信封被点击了!'); // 添加调试信息
+        
+        // 确保信封动画在下一帧渲染，并且只渲染信封动画
+        requestAnimationFrame(() => {
+          // 添加类，触发信封展开
+          formWrap.classList.add('open');
+          
+          const setFinalState = (element, props) => {
+            for (const key in props) {
+              element.style[key] = props[key];
+            }
+          };
+          
+          // 等待信纸动画完全完成后再触发所有图片动画
+          setTimeout(() => {
+            // 所有图片同时开始动画
+            setFinalState(leftImage, {
+              opacity: '1',
+              left: '2%',
+              transform: 'translateY(-50%) translateZ(0) rotate(0deg) scale(1.0)'
+            });
+            
+            setFinalState(rightImage, {
+              opacity: '1',
+              right: '5%',
+              transform: 'translateY(-50%) translateZ(0) rotate(0deg) scale(1.2)'
+            });
+            
+            setFinalState(leftImage2, {
+              opacity: '1',
+              left: '12%',
+              transform: 'translateY(-50%) translateZ(0) rotate(0deg) scale(1.68)'
+            });
+            
+            setFinalState(bottomImage, {
+              opacity: '1',
+              top: 'calc(85% - 120px)',
+              transform: 'translateX(-50%) translateZ(0) scale(1.4)'
+            });
+            
+            // 动画完成后重置状态
+            setTimeout(() => {
+              window.isAnimating = false;
+              animationCompleted = true; // 标记动画已完成
+            }, 3200); // 调整等待时间以适应最慢的图片动画
+          }, 1900); // 等待信纸动画完全完成后再开始图片动画，适应更慢的信纸动画
+        });
+      });
+      
+      // 添加滚轮事件监听，当用户向下滚动时让图片飞出
+      let wheelEventTriggered = false; // 防止重复触发
+      let totalScrollDelta = 0; // 跟踪累计滚动量
+      const MAX_SCROLL_DELTA = 400; // 减少最大滚动量，让图片更快飞出
+      let scrollTimeout; // 用于延迟检测滚动结束
+      
+      window.addEventListener('wheel', function(e) {
+        // 仅在动画完成后且向下滚动时处理
+        if (animationCompleted && e.deltaY > 0) {
+          // 第一次滚动时初始化
+          if (!wheelEventTriggered) {
+            wheelEventTriggered = true;
+            totalScrollDelta = 0;
+            
+            // 给图片添加飞出动画类
+            leftImage.classList.add('flying-out');
+            rightImage.classList.add('flying-out');
+            leftImage2.classList.add('flying-out');
+            bottomImage.classList.add('flying-out');
+          }
+          
+          // 累加滚动量
+          totalScrollDelta += Math.abs(e.deltaY);
+          
+          // 计算滚动百分比，限制在0-100%之间
+          const scrollPercentage = Math.min(100, (totalScrollDelta / MAX_SCROLL_DELTA) * 100);
+          
+          // 图片位置根据滚动百分比计算
+          // 左侧第一个图片飞出，逐渐移动到-330px
+          const leftImagePosition = 2 - ((2 + 330) * scrollPercentage / 100);
+          const leftImageRotation = -15 * scrollPercentage / 100;
+          leftImage.style.left = leftImagePosition + '%';
+          leftImage.style.opacity = 1 - (scrollPercentage / 100);
+          leftImage.style.transform = `translateY(-50%) translateZ(0) rotate(${leftImageRotation}deg) scale(1.0)`;
+          
+          // 右侧图片飞出，逐渐移动到-975px
+          const rightImagePosition = 5 - ((5 + 40) * scrollPercentage / 100);
+          const rightImageRotation = 15 * scrollPercentage / 100;
+          rightImage.style.right = rightImagePosition + '%';
+          rightImage.style.opacity = 1 - (scrollPercentage / 100);
+          rightImage.style.transform = `translateY(-50%) translateZ(0) rotate(${rightImageRotation}deg) scale(1.2)`;
+          
+          // 左下图片飞出，逐渐移动到-600px
+          const leftImage2Position = 12 - ((12 + 50) * scrollPercentage / 100);
+          const leftImage2Rotation = -15 * scrollPercentage / 100;
+          leftImage2.style.left = leftImage2Position + '%';
+          leftImage2.style.opacity = 1 - (scrollPercentage / 100);
+          leftImage2.style.transform = `translateY(-50%) translateZ(0) rotate(${leftImage2Rotation}deg) scale(1.68)`;
+          
+          // 底部图片飞出，向下飞出
+          const bottomImageStartPosition = 85 - 120/7; // 从85%减去120px转换为百分比(约17.1%)
+          const bottomImagePosition = bottomImageStartPosition + ((100 - bottomImageStartPosition) * scrollPercentage / 100);
+          bottomImage.style.top = bottomImagePosition + '%';
+          bottomImage.style.opacity = 1 - (scrollPercentage / 100);
+          bottomImage.style.transform = `translateX(-50%) translateZ(0) translateY(${scrollPercentage}%) scale(1.4)`;
+          
+          // 清除之前的超时，重新设置
+          clearTimeout(scrollTimeout);
+          
+          // 当滚动暂停一段时间或达到最大滚动量时，完成动画
+          scrollTimeout = setTimeout(() => {
+            if (scrollPercentage >= 100) {
+              // 图片完全飞出后，隐藏图片并重置状态
+              setTimeout(() => {
+                leftImage.classList.remove('flying-out');
+                rightImage.classList.remove('flying-out');
+                leftImage2.classList.remove('flying-out');
+                bottomImage.classList.remove('flying-out');
+                
+                // 重置状态为可再次触发
+                wheelEventTriggered = false;
+                animationCompleted = false;
+                
+                // 准备下一次图片飞入
+                setupImages();
+              }, 1000);
+            }
+          }, 800);  // 滚动停止800毫秒后检查是否达到阈值
+        }
+      });
+    }
+    
+    // 当DOM加载完成后初始化
+    document.addEventListener('DOMContentLoaded', function() {
+      preloadImages(() => {
+        console.log('图片预加载完成');
+        initPage();
+      });
+    });
+    
+    // 确保无论如何都会初始化页面
+    window.addEventListener('load', function() {
+      setTimeout(() => {
+        if (!pageReady) {
+          console.log('通过load事件初始化页面');
+          initPage();
+        }
+      }, 500);
+    });
+    </script>
+    
+    <!-- 手势光标样式放在最后，避免干扰其他样式 -->
+    <style>
+        /* 手势光标样式 */
+        #video-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            opacity: 0; /* 隐藏视频元素 */
+            transform: scaleX(-1); /* 水平镜像 */
+        }
+
+        #output-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            transform: scaleX(-1); /* 水平镜像 */
+            pointer-events: none; /* 允许点击穿透 */
+        }
+
+        .hand-star {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+            pointer-events: none;
+            transition: width 0.1s ease-out, height 0.1s ease-out;
+        }
+
+        .mini-star {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            transform: translate(-50%, -50%);
+            z-index: 999;
+            pointer-events: none;
+            filter: drop-shadow(0 0 5px rgba(255, 255, 200, 0.8));
+            opacity: 1;
+            transition: opacity 0.5s ease;
+        }
+
+        #particles-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 998;
+            pointer-events: none;
+        }
+
+        #instruction {
+            position: fixed;
+            bottom: 30px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 18px;
+            font-family: sans-serif;
+            z-index: 1001;
+            padding: 10px;
+            opacity: 0;
+            animation: fadeIn 2s ease forwards 1s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+    
+    <!-- 提前预加载MediaPipe库 -->
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646424915/hands.min.js" as="script">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3/camera_utils.min.js" as="script">
+  </head>
+  <body>
+    <div class="fixed-button">
+        <a href="../../../WeDream-catalog/index.html">
+            <img src="../结果页（幽梦深渊型）/img/返回目录.png" alt="Clickable Image">
+        </a>
+    </div>
+	<!-- 手势识别元素 -->
+    <div id="video-container">
+        <video id="webcam" autoplay playsinline></video>
+    </div>
+    <canvas id="output-canvas"></canvas>
+    <canvas id="particles-canvas"></canvas>
+    <div id="instruction"></div>
+	
+	<!-- 添加星空容器 -->
+	<div class="stars" id="stars"></div>
+	
+	<img src="img/左1.png" class="left-flying-image" alt="Flying decoration left">
+	<img src="img/左2.png" class="left-flying-image2" alt="Flying decoration left 2">
+	<img src="img/新建组.png" class="right-flying-image" alt="Flying decoration right">
+	<img src="img/向下滑动.png" class="bottom-flying-image" alt="Flying decoration bottom">
+	<div id="wrap">
+		<br>
+		<div id="form-wrap">
+			<form>
+				<!-- 空白信纸，移除所有文字内容和按钮 -->
+			</form>
+		</div>
+	</div>
+	
+	<!-- 添加卡片效果 -->
+	<div class="card-container">
+      <div class="card" style="--i: -2; --clr: #a9a9a9" data-text="擎天圣">
+        <img src="img/cards/1.png" />
+      </div>
+      <div class="card" style="--i: -1; --clr: #4169e1" data-text="幻影">
+        <img src="img/cards/2.png" />
+      </div>
+      <div class="card" style="--i: 0; --clr: #ffd700" data-text="大黄蜂">
+        <img src="img/cards/3.png" />
+      </div>
+      <div class="card" style="--i: 1; --clr: #da70d6" data-text="阿尔茜">
+        <img src="img/cards/4.png" />
+      </div>
+      <div class="card" style="--i: 2; --clr: #bc8f8f" data-text="千斤顶">
+        <img src="img/cards/5.png" />
+      </div>
+    </div>
+	
+	<!-- 移到body直接子元素，确保位于整个网页的最底部 -->
+	<div style="width: 100%; position: absolute; bottom: 0; left: 0; right: 0; margin: 0; z-index: 50;">
+	  <img src="img/底部.png" alt="底部装饰" style="width: 100%; height: auto; display: block; vertical-align: bottom;">
+	</div>
+	
+	<!-- 添加星空生成脚本 -->
+	<script>
+	// 生成星空背景
+	function generateStars() {
+	  const stars = document.getElementById('stars');
+	  const count = 900; // 减少为900颗星星
+	  
+	  // 清空现有内容
+	  stars.innerHTML = '';
+	  
+	  // 创建多种大小的星星，增加视觉多样性
+	  const createStars = (size, count, opacityRange, durationRange) => {
+		// 将页面划分为几个区域，确保星星均匀分布
+		const sections = 10; // 将屏幕垂直方向划分为10个区域
+		const starsPerSection = Math.ceil(count / sections);
+		
+		for (let section = 0; section < sections; section++) {
+		  // 计算当前区域的垂直范围
+		  const yMin = (section * 100) / sections;
+		  const yMax = ((section + 1) * 100) / sections;
+		  
+		  // 在每个区域内创建星星
+		  for (let i = 0; i < starsPerSection; i++) {
+			const star = document.createElement('div');
+			star.className = 'star';
+			
+			// 随机位置，但限制在当前区域内
+			const x = Math.random() * 100;
+			const y = yMin + Math.random() * (yMax - yMin);
+			
+			// 随机大小 (基于传入的尺寸)
+			const finalSize = size * (0.8 + Math.random() * 0.4); // 尺寸上下浮动20%
+			
+			// 随机动画持续时间，大幅缩短以加快闪烁速度
+			const minDuration = durationRange[0];
+			const maxDuration = durationRange[1];
+			const duration = Math.random() * (maxDuration - minDuration) + minDuration;
+			
+			// 随机最大亮度
+			const minOpacity = opacityRange[0];
+			const maxOpacity = opacityRange[1];
+			const opacity = Math.random() * (maxOpacity - minOpacity) + minOpacity;
+			
+			// 随机延迟开始时间
+			const delay = Math.random() * 10;
+			
+			// 设置样式
+			star.style.cssText = `
+			  left: ${x}%;
+			  top: ${y}%;
+			  width: ${finalSize}px;
+			  height: ${finalSize}px;
+			  --duration: ${duration}s;
+			  --opacity: ${opacity};
+			  animation-delay: ${delay}s;
+			`;
+			
+			stars.appendChild(star);
+		  }
+		}
+	  };
+	  
+	  // 创建不同大小的星星，均匀分布在各个区域
+	  createStars(1, 450, [0.4, 0.7], [1.2, 2.5]);    // 小星星，亮度较低，闪烁快
+	  createStars(2, 300, [0.5, 0.8], [1.5, 3.0]);    // 中小星星
+	  createStars(3, 110, [0.6, 0.9], [2.0, 3.5]);    // 中等星星
+	  createStars(4, 40, [0.7, 1.0], [2.5, 4.0]);    // 大星星，较亮，闪烁较慢
+	}
+	
+	// 页面加载完成后生成星空
+	window.addEventListener('load', function() {
+	  generateStars();
+	});
+	</script>
+    
+    <!-- 引入卡片效果脚本 -->
+    <script src="card.js"></script>
+    
+    <!-- MediaPipe手势识别库 -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646424915/hands.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3/camera_utils.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils@0.3/drawing_utils.min.js"></script>
+    
+    <!-- 星星光标脚本 -->
+    <script src="../star-cursor.js"></script>
+    
+    <!-- 手势光标脚本 -->
+    <script src="hand-cursor.js"></script>
+  </body>
+</html>

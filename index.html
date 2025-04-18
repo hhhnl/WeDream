@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>首页</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="favicon.ico" type="favicon.ico">
+    <!-- 兼容旧版本浏览器 -->
+    <link rel="shortcut icon" href="favicon.ico" type="favicon.ico">
+    <style>
+        /* 添加页面过渡效果 */
+        body {
+            transition: opacity 0.5s ease;
+        }
+        .fade-out {
+            opacity: 0;
+        }
+        
+        /* 隐藏滚动条但保留滚动功能 */
+        html, body {
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE and Edge */
+            overflow-x: hidden; /* 隐藏水平滚动条 */
+        }
+        
+        /* Chrome, Safari and Opera */
+        ::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="space"></canvas>
+    <div id="content">
+        <img src="dream标题.png" alt="Title Image" class="title-image">
+        <img src="1.png" alt="Full Screen Image" class="base-image">
+        <img src="2.png" alt="Overlay Image" class="overlay-image">
+        <img src="3.png" alt="Second Overlay Image" class="second-overlay-image">
+    </div>
+    <!-- 音乐播放按钮 -->
+    <div class="fixed-button" id="playButton">
+        <img src="./image/音乐.png" alt="Play Music">
+    </div>
+    <!-- 音频元素 -->
+    <audio id="music" autoplay loop>
+        <!-- 请替换为你实际的音乐文件链接 -->
+        <source src="./sercepolska.mp3" type="audio/mpeg">
+    </audio>
+    <canvas id="flower-canvas"></canvas>
+    <!-- 自定义鼠标光标 -->
+    <img id="cursor" src="星星.png" alt="星星光标">
+    <script src="script.js"></script>
+</body>
+</html> 

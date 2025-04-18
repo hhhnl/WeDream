@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="../favicon.ico" type="favicon.ico">
+    <!-- 兼容旧版本浏览器 -->
+    <link rel="shortcut icon" href="../favicon.ico" type="favicon.ico">
+    <title>解梦·绘梦</title>
+    <!-- Add permission policy for microphone -->
+    <meta http-equiv="Permissions-Policy" content="microphone=(), camera=()">
+    <link rel="stylesheet" href="styles.css" />
+    <!-- 引入通用光标效果CSS -->
+    <link rel="stylesheet" href="../cursor-effects.css">
+    <!-- 将脚本放在头部并添加defer属性，确保尽早执行 -->
+    <script src="js/axios.min.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/chat.js"></script>
+    <script src="script.js" defer></script>
+
+    <!-- 手势光标样式 -->
+    <style>
+      /* 手势光标样式 */
+      #video-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+        opacity: 0; /* 隐藏视频元素 */
+        transform: scaleX(-1); /* 水平镜像 */
+      }
+
+      #output-canvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 999999; /* 超高z-index值，确保绝对在最顶层 */
+        transform: scaleX(-1); /* 水平镜像 */
+        pointer-events: none; /* 允许点击穿透 */
+      }
+
+      .hand-star {
+        position: absolute;
+        width: 60px;
+        height: 60px;
+        transform: translate(-50%, -50%);
+        z-index: 999999; /* 超高z-index值，确保绝对在最顶层 */
+        pointer-events: none;
+        transition: width 0.1s ease-out, height 0.1s ease-out;
+      }
+
+      .mini-star {
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        transform: translate(-50%, -50%);
+        z-index: 999998; /* 超高z-index值，略低于主光标但高于其他元素 */
+        pointer-events: none;
+        filter: drop-shadow(0 0 5px rgba(255, 255, 200, 0.8));
+        opacity: 1;
+        transition: opacity 0.5s ease;
+      }
+
+      #particles-canvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 999997; /* 超高z-index值，确保在大多数元素之上但低于光标 */
+        pointer-events: none;
+      }
+
+      #instruction {
+        position: fixed;
+        bottom: 30px;
+        left: 0;
+        width: 100%;
+        text-align: center;
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 18px;
+        font-family: sans-serif;
+        z-index: 999998; /* 提高z-index值 */
+        padding: 10px;
+        opacity: 0;
+        animation: fadeIn 2s ease forwards 1s;
+      }
+
+      /* 吹气提示样式 */
+      .blow-instruction {
+        position: fixed;
+        top: 20px;
+        left: 0;
+        width: 100%;
+        text-align: center;
+        color: rgba(255, 255, 255, 0.85);
+        font-size: 16px;
+        font-family: sans-serif;
+        z-index: 999998;
+        padding: 10px;
+        background-color: rgba(0, 0, 0, 0.5);
+        border-radius: 20px;
+        margin: 0 auto;
+        max-width: 80%;
+        opacity: 0;
+        transform: translateY(-50px);
+        transition: opacity 0.5s ease, transform 0.5s ease;
+        pointer-events: none;
+      }
+
+      .blow-instruction.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="cursor-container"></div>
+    <img id="cursor" src="img/星星.png" alt="星星光标">
+    <div class="fixed-button">
+        <a href="../WeDream-catalog/index.html">
+            <img src="./img/返回目录.png" alt="Clickable Image">
+        </a>
+    </div>
+    <div class="fixed-button1" id="playButton">
+        <img src="../image/音乐.png" alt="Play Music">
+    </div>
+    <!-- 音频元素 -->
+    <audio id="music" autoplay loop>
+        <!-- 请替换为你实际的音乐文件链接 -->
+        <source src="../sercepolska.mp3" type="audio/mpeg">
+    </audio>
+    <!-- 手势识别元素 -->
+    <div id="video-container">
+      <video id="webcam" autoplay playsinline></video>
+    </div>
+    <canvas id="output-canvas"></canvas>
+    <canvas id="particles-canvas"></canvas>
+    <div id="instruction"></div>
+
+    <!-- 吹气提示 -->
+    <!-- <div class="blow-instruction" id="blow-instruction">对着屏幕吹一口气，可以自动滚动到顶部</div> -->
+
+    <div class="background-container">
+      <!-- 左右装饰图片 -->
+      <div class="top-left-image-container">
+        <img src="img/上左1.png" alt="左上装饰" class="top-left-image" />
+      </div>
+      <div class="top-right-image-container">
+        <img src="img/上右1.png" alt="右上装饰" class="top-right-image" />
+      </div>
+
+      <!-- 重新解梦按钮 -->
+      <div class="reset-dream-button-container">
+        <img src="img/重新解梦按钮.png" alt="重新解梦" class="reset-dream-button" />
+      </div>
+
+      <!-- 图片文本 -->
+      <div class="image-text-container">
+        <img src="" alt="图片" />
+        <div class="cont">
+          <p>梦境解析</p>
+        </div>
+      </div>
+
+      <!-- 全屏装饰背景 -->
+      <div class="decoration-background"></div>
+
+      <!-- 星空背景 -->
+      <div id="stars" class="stars"></div>
+
+      <!-- 背景图片在中间层 -->
+      <div class="background-image"></div>
+
+      <!-- 3D旋转卡片效果 -->
+      <div class="banner">
+        <div class="slider" style="--quantity: 10">
+          <!-- 所有卡片现在不预设前后类，由JavaScript动态添加 -->
+          <div class="item" style="--position: 1" data-position="1">
+            <img src="img/1k.png" alt="卡片1" />
+          </div>
+          <div class="item" style="--position: 2" data-position="2">
+            <img src="img/2k.png" alt="卡片2" />
+          </div>
+          <div class="item" style="--position: 3" data-position="3">
+            <img src="img/3k.png" alt="卡片3" />
+          </div>
+          <div class="item" style="--position: 4" data-position="4">
+            <img src="img/4k.png" alt="卡片4" />
+          </div>
+          <div class="item" style="--position: 5" data-position="5">
+            <img src="img/5k.png" alt="卡片5" />
+          </div>
+          <div class="item" style="--position: 6" data-position="6">
+            <img src="img/6k.png" alt="卡片6" />
+          </div>
+          <div class="item" style="--position: 7" data-position="7">
+            <img src="img/7k.png" alt="卡片7" />
+          </div>
+          <div class="item" style="--position: 8" data-position="8">
+            <img src="img/8k.png" alt="卡片8" />
+          </div>
+          <div class="item" style="--position: 9" data-position="9">
+            <img src="img/9k.png" alt="卡片9" />
+          </div>
+          <div class="item" style="--position: 10" data-position="10">
+            <img src="img/10k.png" alt="卡片10" />
+          </div>
+        </div>
+      </div>
+
+      <!-- 底部输入框和解梦按钮 -->
+      <div class="ui-elements-container">
+        <div class="input-container">
+          <textarea
+            class="input-field"
+            placeholder="请在这描述你的梦境..."
+          ></textarea>
+        </div>
+
+        <div class="result-button-container">
+          <img
+            src="img/获取结果按钮.png"
+            alt="开始解梦"
+            class="result-button"
+          />
+        </div>
+      </div>
+
+      <!-- 魔法飞出效果 -->
+      <div class="magic-effect-container">
+        <img src="img/魔法飞出.png" alt="魔法效果" class="magic-effect" />
+      </div>
+
+      <!-- 左侧底部图片 -->
+      <img src="img/左1.png" alt="左侧装饰" class="bottom-left-image" />
+
+      <!-- 添加you1图片，使用相同的样式类 -->
+      <img src="img/you1.png" alt="右侧装饰" class="bottom-right-image" />
+
+      <!-- 底部向上滑动提示 -->
+      <img src="img/向上滑动.png" alt="向上滑动" class="swipe-up-image" />
+    </div>
+
+    <!-- 加载 -->
+    <div class="loading-container">
+      <svg
+        t="1744782443572"
+        class="icon"
+        viewBox="0 0 1024 1024"
+        version="1.1"
+        xmlns="http://www.w3.org/2000/svg"
+        p-id="4498"
+        width="200"
+        height="200"
+      >
+        <path
+          d="M546.462897 266.292966c-73.410207 0-133.15531-59.727448-133.155311-133.137656C413.307586 59.762759 473.05269 0 546.462897 0c73.410207 0 133.12 59.727448 133.12 133.15531 0 73.410207-59.709793 133.137655-133.12 133.137656z m-283.453794 105.736827c-67.054345 0-121.626483-54.554483-121.626482-121.644138s54.572138-121.644138 121.626482-121.644138a121.767724 121.767724 0 0 1 121.608828 121.644138c0 67.054345-54.554483 121.644138-121.608828 121.644138zM142.547862 647.185655A107.343448 107.343448 0 0 1 35.310345 539.895172a107.343448 107.343448 0 0 1 107.237517-107.237517 107.343448 107.343448 0 0 1 107.219862 107.237517 107.343448 107.343448 0 0 1-107.219862 107.272828z m120.461241 272.595862a91.047724 91.047724 0 0 1-90.941793-90.959448 91.065379 91.065379 0 0 1 90.924138-90.941793 91.065379 91.065379 0 0 1 90.941793 90.941793c0 50.14069-40.783448 90.959448-90.924138 90.959448zM546.462897 1024a79.518897 79.518897 0 0 1-79.448276-79.448276c0-43.820138 35.645793-79.448276 79.448276-79.448276a79.518897 79.518897 0 0 1 79.43062 79.448276c0 43.820138-35.628138 79.448276-79.448276 79.448276z m287.744-134.285241a64.194207 64.194207 0 0 1-64.123587-64.123587 64.194207 64.194207 0 0 1 64.123587-64.123586 64.194207 64.194207 0 0 1 64.123586 64.123586 64.194207 64.194207 0 0 1-64.123586 64.123587z m117.848275-296.695173a52.683034 52.683034 0 0 1-52.612413-52.612414 52.683034 52.683034 0 0 1 52.612413-52.630069 52.70069 52.70069 0 0 1 52.630069 52.612414 52.718345 52.718345 0 0 1-52.630069 52.630069z m-158.667034-338.696827a40.818759 40.818759 0 1 0 81.655172 0.017655 40.818759 40.818759 0 0 0-81.655172 0z"
+          fill="#2934C5"
+          p-id="4499"
+        ></path>
+      </svg>
+      <!-- 加载文字提示 -->
+      <img src="img/生成中 大约需要20s.png" alt="生成中 大约需要20s" class="loading-text" />
+     
+    </div>
+    <script>
+        const playButton = document.getElementById('playButton');
+        const music = document.getElementById('music');
+        let hasInteracted = false;
+
+        function playMusicOnInteraction() {
+            if (!hasInteracted) {
+                music.play().catch(() => {
+                    // 播放失败，可能是浏览器策略限制
+                });
+                hasInteracted = true;
+                document.removeEventListener('click', playMusicOnInteraction);
+                document.removeEventListener('touchstart', playMusicOnInteraction);
+            }
+        }
+
+        document.addEventListener('click', playMusicOnInteraction);
+        document.addEventListener('touchstart', playMusicOnInteraction);
+
+        playButton.addEventListener('click', function () {
+            if (music.paused) {
+                music.play();
+
+            } else {
+                music.pause();
+
+            }
+        });
+    </script>
+    <!-- MediaPipe手势识别库 -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646424915/hands.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3/camera_utils.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils@0.3/drawing_utils.min.js"></script>
+
+    <!-- 手势光标脚本 -->
+    <script src="hand-cursor.js"></script>
+    <script>
+        // 自定义光标跟随效果
+        document.addEventListener('DOMContentLoaded', function() {
+            const cursor = document.getElementById('cursor');
+            
+            // 跟随鼠标移动
+            document.addEventListener('mousemove', function(e) {
+                cursor.style.left = e.clientX + 'px';
+                cursor.style.top = e.clientY + 'px';
+                
+                // 创建拖尾效果
+                if (Math.random() > 0.7) { // 控制拖尾生成频率
+                    createTrailEffect(e.clientX, e.clientY);
+                }
+            });
+            
+            // 鼠标的最后位置
+            let lastMouseX = 0;
+            let lastMouseY = 0;
+            
+            // 跟踪鼠标位置，用于滚动时更新光标
+            document.addEventListener('mousemove', function(e) {
+                lastMouseX = e.clientX;
+                lastMouseY = e.clientY;
+            });
+            
+            // 创建拖尾效果
+            function createTrailEffect(x, y) {
+                const trail = document.createElement('div');
+                trail.className = 'cursor-trail';
+                
+                // 设置位置和随机旋转
+                trail.style.left = x + 'px';
+                trail.style.top = y + 'px';
+                trail.style.transform = `translate(-50%, -50%) rotate(${Math.random() * 360}deg)`;
+                
+                document.body.appendChild(trail);
+                
+                // 淡出动画完成后移除元素
+                setTimeout(function() {
+                    if (trail && trail.parentNode) {
+                        trail.parentNode.removeChild(trail);
+                    }
+                }, 800);
+            }
+            
+            // 处理页面滚动时的光标位置
+            window.addEventListener('scroll', function() {
+                // 在滚动时更新光标位置
+                cursor.style.left = lastMouseX + 'px';
+                cursor.style.top = lastMouseY + 'px';
+                
+                // 在滚动时也可以创建拖尾效果
+                if (Math.random() > 0.9) { // 滚动时降低拖尾生成频率
+                    createTrailEffect(lastMouseX, lastMouseY);
+                }
+            });
+            
+            // 鼠标点击效果
+            document.addEventListener('mousedown', function() {
+                cursor.style.transform = 'translate(-50%, -50%) scale(0.8)';
+            });
+            
+            document.addEventListener('mouseup', function() {
+                cursor.style.transform = 'translate(-50%, -50%) scale(1)';
+            });
+            
+            // 光标悬停在可点击元素上的效果
+            document.querySelectorAll('a, button, .option, .submit').forEach(item => {
+                item.addEventListener('mouseenter', function() {
+                    cursor.style.transform = 'translate(-50%, -50%) scale(1.2)';
+                });
+                
+                item.addEventListener('mouseleave', function() {
+                    cursor.style.transform = 'translate(-50%, -50%) scale(1)';
+                });
+            });
+        });
+    </script>
+    <!-- 引入通用光标效果JS -->
+    <script src="../cursor-effects.js"></script>
+</html>

@@ -1,0 +1,754 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    overflow-x: hidden; /* 隐藏横向滚动条 */
+    width: 100%; /* 确保宽度占满 */
+    max-width: 100vw; /* 限制最大宽度为视口宽度 */
+}
+
+body {
+    position: relative; /* 设置相对定位 */
+    overflow: hidden; /* 隐藏溢出内容，防止出现双滚动条 */
+}
+
+/* 基础容器设置 */
+.background-container {
+    width: 100%;
+    height: 100vh;
+    overflow-y: scroll;
+    overflow-x: hidden; /* 隐藏横向滚动条 */
+    position: relative;
+    background-color: rgb(1, 0, 25);
+    min-height: 100vh; /* 确保最小高度为视口高度 */
+}
+
+/* 全屏装饰背景 */
+.decoration-background {
+    position: absolute;
+    top: -160px; /* 原来是-60px，再向上移动100px */
+    left: 0;
+    width: 100%;
+    height: 320vh; /* 增加高度，确保底部不被截断 */
+    background-image: url('img/装饰.png');
+    background-size: cover;
+    background-position: center;
+    z-index: 0; /* 设置为最底层 */
+    pointer-events: none;
+}
+
+/* 星空背景样式 */
+.stars {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1; /* 确保星空在装饰背景之上，其他元素之下 */
+    pointer-events: none;
+}
+
+.star {
+    position: absolute;
+    background-color: #fff;
+    border-radius: 50%;
+    animation: twinkle var(--duration) infinite ease-in-out;
+    opacity: 0;
+    box-shadow: 0 0 3px rgba(255, 255, 255, 0.9), 0 0 5px rgba(255, 255, 255, 0.4); /* 发光效果 */
+}
+
+@keyframes twinkle {
+    0% {
+        opacity: 0;
+    }
+    40% { /* 加快达到最亮的时间 */
+        opacity: var(--opacity);
+    }
+    60% { /* 延长保持亮度的时间 */
+        opacity: var(--opacity);
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+/* 背景图片 - 放在比较高层级 */
+.background-image {
+    width: 100%;
+    height: 300vh;
+    background-image: url('img/bgg.png');
+    background-size: contain;
+    background-position: center bottom;
+    background-repeat: no-repeat;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 10; /* 保持较低的z-index值 */
+    pointer-events: none; /* 确保不阻挡鼠标事件 */
+}
+
+/* 背景图片抖动动画 */
+@keyframes shakeEffect {
+    0% { transform: translateX(0) rotate(0deg); }
+    10% { transform: translateX(-8px) rotate(-0.5deg); }
+    20% { transform: translateX(8px) rotate(0.5deg); }
+    30% { transform: translateX(-6px) rotate(-0.4deg); }
+    40% { transform: translateX(6px) rotate(0.4deg); }
+    50% { transform: translateX(-4px) rotate(-0.3deg); }
+    60% { transform: translateX(4px) rotate(0.3deg); }
+    70% { transform: translateX(-2px) rotate(-0.2deg); }
+    80% { transform: translateX(2px) rotate(0.2deg); }
+    90% { transform: translateX(-1px) rotate(-0.1deg); }
+    100% { transform: translateX(0) rotate(0deg); }
+}
+
+.background-image.shaking {
+    animation: shakeEffect 1.2s ease;
+    transform-origin: center bottom; /* 设置旋转原点在底部中心 */
+}
+
+/* 旋转卡片容器 */
+.banner {
+    width: 100%;
+    position: absolute;
+    top: calc(300vh - 780px); /* 再向上移动30px */
+    left: 0;
+    text-align: center;
+    pointer-events: none;
+    z-index: 9000; /* 降低z-index值，确保在手势光标下方 */
+}
+
+/* 旋转滑块 */
+.banner .slider {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    margin: 0 auto;
+    transform-style: preserve-3d;
+    transform: perspective(1200px);
+    animation: autoRun 20s linear infinite;
+}
+
+@keyframes autoRun {
+    from {
+        transform: perspective(1200px) rotateX(-5deg) rotateY(0deg);
+    }
+    to {
+        transform: perspective(1200px) rotateX(-5deg) rotateY(360deg);
+    }
+}
+
+/* 所有卡片的基本样式 */
+.banner .slider .item {
+    position: absolute;
+    inset: 0 0 0 0;
+    transform: rotateY(calc((var(--position) - 1) * (360 / var(--quantity)) * 1deg)) translateZ(500px) scaleX(0.65) scaleY(0.75);
+    transform-style: preserve-3d;
+    backface-visibility: visible;
+    transform-origin: center;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    z-index: 8000; /* 降低z-index值，确保在手势光标下方 */
+    pointer-events: auto; /* 允许鼠标事件 */
+}
+
+/* 卡片拖拽时的效果 */
+.banner .slider .item.dragging {
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.banner .slider .item.disappearing {
+    opacity: 0;
+    transform: rotateY(calc((var(--position) - 1) * (360 / var(--quantity)) * 1deg)) translateZ(300px) translateY(150px) scale(0.3);
+    pointer-events: none;
+}
+
+/* 卡片飞出动画 */
+.banner .slider .item.flying-out {
+    pointer-events: none;
+    transition: transform 1.5s cubic-bezier(0.5, 0, 0.75, 0), opacity 1.5s ease;
+    opacity: 0;
+}
+
+.banner .slider .item.flying-out-1 {
+    transform: rotateY(calc((var(--position) - 1) * (360 / var(--quantity)) * 1deg)) translateZ(-1500px) translateY(-1200px) translateX(300px) rotate(360deg) scale(0.1);
+}
+
+.banner .slider .item.flying-out-2 {
+    transform: rotateY(calc((var(--position) - 1) * (360 / var(--quantity)) * 1deg)) translateZ(-1800px) translateY(-1500px) translateX(-200px) rotate(-540deg) scale(0.1);
+}
+
+.banner .slider .item.flying-out-3 {
+    transform: rotateY(calc((var(--position) - 1) * (360 / var(--quantity)) * 1deg)) translateZ(-1200px) translateY(-900px) translateX(-100px) rotate(180deg) scale(0.1);
+}
+
+.banner .slider .item.flying-out-4 {
+    transform: rotateY(calc((var(--position) - 1) * (360 / var(--quantity)) * 1deg)) translateZ(-2000px) translateY(-1800px) translateX(150px) rotate(-720deg) scale(0.1);
+}
+
+/* 前半圈卡片 - 仍需高于后半圈卡片 */
+.banner .slider .front-item {
+    z-index: 9000; /* 降低z-index值，确保在手势光标下方 */
+}
+
+/* 后半圈卡片 - 即使是最底层的卡片也应该高于其他元素 */
+.banner .slider .back-item {
+    z-index: 8500; /* 降低z-index值，确保在手势光标下方 */
+}
+
+/* 卡片图片样式 */
+.banner .slider .item img {
+    width: 100%;
+    height: 100%;
+    border-radius: 20px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    pointer-events: none;
+}
+
+/* 响应式布局 */
+@media screen and (max-width: 1023px) {
+    .banner .slider {
+        width: 180px;
+        height: 180px;
+    }
+    .banner .slider .item {
+        transform: rotateY(calc((var(--position) - 1) * (360 / var(--quantity)) * 1deg)) translateZ(400px) scaleX(0.65) scaleY(0.75);
+    }
+}
+
+@media screen and (max-width: 767px) {
+    .banner .slider {
+        width: 120px;
+        height: 130px;
+    }
+    .banner .slider .item {
+        transform: rotateY(calc((var(--position) - 1) * (360 / var(--quantity)) * 1deg)) translateZ(300px) scaleX(0.65) scaleY(0.75);
+    }
+}
+
+/* UI元素容器 - 与背景图片一起移动 */
+.ui-elements-container {
+    position: absolute;
+    top: calc(300vh - 350px); /* 原来是380px，再向下移动30px变为350px */
+    left: 0;
+    width: 100%;
+    z-index: 11; /* 高于背景图片 */
+    pointer-events: none; /* 默认不接收鼠标事件 */
+}
+
+.background-image.shaking ~ .ui-elements-container {
+    animation: shakeEffect 1.2s ease;
+    transform-origin: center bottom;
+}
+
+/* 底部输入框样式 */
+.input-container {
+    position: relative;
+    margin: 10px auto 0; /* 添加10px的顶部外边距，让文本框向下移动 */
+    width: 60%;
+    max-width: 400px;
+    z-index: 2000;
+    pointer-events: auto; /* 允许鼠标事件 */
+}
+
+.input-field {
+    width: 100%;
+    padding: 20px 15px;
+    height: 150px; /* 固定高度 */
+    border-radius: 25px;
+    border: none;
+    background-color: rgba(255, 255, 255, 0.9);
+    color: #333;
+    font-size: 16px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    outline: none;
+    transition: all 0.3s ease;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    overflow-y: auto; /* 启用垂直滚动 */
+    line-height: 1.5;
+    resize: none; /* 禁止用户手动调整大小 */
+}
+
+.input-field:focus {
+    background-color: #fff;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
+}
+
+/* 解梦按钮样式 */
+.result-button-container {
+    position: relative;
+    margin: 0 auto 0;
+    transform: translateX(10px); /* 略微向右偏移 */
+    width: 220px;
+    z-index: 2000;
+    cursor: pointer;
+    pointer-events: auto; /* 允许鼠标事件 */
+}
+
+.result-button {
+    width: 100%;
+    height: auto;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+    transition: all 0.3s ease;
+}
+
+.result-button:hover {
+    transform: scale(1.05);
+    filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.4));
+}
+
+/* 魔法飞出效果 */
+.magic-effect-container {
+    position: absolute; /* 改为absolute定位，跟随页面滚动 */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 300vh; /* 改为300vh，与页面高度相同 */
+    pointer-events: none;
+    z-index: 5; /* 降低z-index，确保在底层 */
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 1s ease, visibility 1s;
+    overflow: hidden;
+}
+
+.magic-effect {
+    position: absolute;
+    top: 80px; /* 将图片向上移动20px，原来是100px */
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: fill; /* 从cover改为fill，允许拉伸 */
+    transform: scaleY(1.1); /* 纵向拉长10%，原来是15% */
+    clip-path: inset(100% 0 0 0);
+    transition: clip-path 2s cubic-bezier(0.42, 0, 0.58, 1);
+}
+
+/* 显示魔法效果时的样式 */
+.magic-effect-container.show {
+    opacity: 1;
+    visibility: visible;
+    z-index: 5; /* 保持在底层 */
+}
+
+.magic-effect-container.show .magic-effect {
+    clip-path: inset(0 0 0 0);
+}
+
+/* 左侧底部图片 */
+.bottom-left-image {
+    position: absolute;
+    bottom: 20px; /* 靠近底部 */
+    left: 70px; /* 向左移动10px，原来是80px */
+    z-index: 15;
+    pointer-events: none;
+    width: 450px; /* 增加宽度，原来是400px */
+    height: auto; /* 保持宽高比 */
+    top: calc(300vh - 370px); /* 向上移动50px，原来是420px */
+    animation: floatLeftRight 4s ease-in-out infinite; /* 添加轻微晃动动画 */
+}
+
+/* 右侧底部图片 - 与左侧底部图片保持一致的样式与大小 */
+.bottom-right-image {
+    position: absolute;
+    bottom: 20px; /* 靠近底部 */
+    right: 70px; /* 与左侧底部图片对称 */
+    z-index: 15;
+    pointer-events: none;
+    width: 520px; /* 放大图片，原来是500px */
+    height: auto; /* 保持宽高比 */
+    top: calc(300vh - 320px); /* 与左侧底部图片垂直位置一致 */
+    animation: floatRightLeft 4.5s ease-in-out infinite; /* 添加轻微晃动动画，与左侧错开 */
+}
+
+/* 左侧图片的上下浮动动画 */
+@keyframes floatLeftRight {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0); }
+}
+
+/* 右侧图片的上下浮动动画，与左侧错开 */
+@keyframes floatRightLeft {
+    0% { transform: translateY(-5px); }
+    50% { transform: translateY(5px); }
+    100% { transform: translateY(-5px); }
+}
+
+/* 底部向上滑动提示 */
+.swipe-up-image {
+    position: fixed;
+    bottom: 60px; /* 从40px增加到60px，使图片再向上移动20px */
+    left: 50%;
+    transform: translateX(-50%) translateY(100px); /* 初始位置在可见区域下方 */
+    z-index: 2000;
+    pointer-events: none;
+    width: 220px;
+    height: auto;
+    opacity: 0; /* 初始状态隐藏 */
+    transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.8s ease; /* 添加过渡效果 */
+}
+
+/* 向上滑动图片的上下浮动动画 */
+@keyframes floatUpDown {
+    0% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(-15px); }
+    100% { transform: translateX(-50%) translateY(0); }
+}
+
+/* 当显示时应用这个类 */
+.swipe-up-image.show {
+    transform: translateX(-50%) translateY(0); /* 移动到目标位置 */
+    opacity: 1;
+    animation: floatUpDown 2s ease-in-out infinite; /* 出现后开始浮动动画 */
+}
+
+/* 粒子画布和手势跟踪相关元素的样式 */
+#particles-canvas, #output-canvas, #video-container {
+    overflow: hidden; /* 防止内容溢出 */
+    pointer-events: none; /* 确保不拦截鼠标事件 */
+}
+
+/* 手势光标样式 */
+#video-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    opacity: 0; /* 隐藏视频元素 */
+    transform: scaleX(-1); /* 水平镜像 */
+}
+
+#output-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 99999; /* 极大提高z-index值，确保绝对在最顶层 */
+    transform: scaleX(-1); /* 水平镜像 */
+    pointer-events: none; /* 允许点击穿透 */
+}
+
+.hand-star {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    transform: translate(-50%, -50%);
+    z-index: 99999; /* 极大提高z-index值，确保绝对在最顶层 */
+    pointer-events: none;
+    transition: width 0.1s ease-out, height 0.1s ease-out;
+}
+
+.mini-star {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    transform: translate(-50%, -50%);
+    z-index: 99998; /* 极大提高z-index值，略低于主光标但高于其他所有元素 */
+    pointer-events: none;
+    filter: drop-shadow(0 0 5px rgba(255, 255, 200, 0.8));
+    opacity: 1;
+    transition: opacity 0.5s ease;
+}
+
+#particles-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 99997; /* 极大提高z-index值，确保在除了主光标外的所有元素之上 */
+    pointer-events: none;
+} 
+
+
+.image-text-container{
+    width: 60%;
+    height: 100vh;
+
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 99;
+    margin: 0 auto;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    display: none;
+    /* padding-top: 100px; */
+    font-family: 'monospace';
+}
+.image-text-container.show{
+    display: flex;
+}
+
+
+.image-text-container img{
+    width: 80%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    background: #fff;
+    border-radius: 50px;
+}
+.image-text-container .cont{
+    margin-top: 20px;
+    background-color: #fff;
+    border-radius: 50px;
+    width: 100%;
+    height: 200px;
+    padding: 20px;
+}
+.image-text-container p{
+    font-size: 18px;
+    line-height: 1.2;
+    /* font-weight: bold; */
+    color: #000;
+    height: 100%;
+    
+    overflow: hidden;
+    overflow-y: auto;
+   
+}
+/* 美化滚动条 */
+.image-text-container p::-webkit-scrollbar{
+    /* display: none; */
+    background-color: transparent;
+    width: 10px;
+    
+}
+.image-text-container p::-webkit-scrollbar-thumb{
+    background-color: #ccc;
+    border-radius: 50px;
+    height: 50px;
+}
+
+
+@media screen and (max-width: 767px) {
+    .image-text-container{
+        width: 90%;
+    }
+}
+
+
+.loading-container{
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;  
+    width: 100px;
+    height: 100px;
+    z-index: 99999;
+    margin: auto;
+    /* display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column; */
+    display: none;
+    transform: translateY(500px); /* 向下移动500px */
+}
+.loading-container.show{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: auto;
+    height: auto;
+}
+.loading-container svg{
+    width: 80px; /* 从100px缩小到80px */
+    height: 80px; /* 从100px缩小到80px */
+    animation: rotate 1.5s linear infinite;
+}
+
+/* 加载文字提示样式 */
+.loading-container .loading-text {
+    width: 200px; /* 从240px缩小到200px */
+    height: auto;
+    margin-top: 20px; /* 从30px缩小到20px */
+    animation: fadeInOut 2s infinite ease-in-out;
+}
+
+@keyframes fadeInOut {
+    0% { opacity: 0.7; }
+    50% { opacity: 1; }
+    100% { opacity: 0.7; }
+}
+
+/* 添加旋转动画 */
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* 重新解梦按钮 */
+.reset-dream-button-container {
+    position: absolute;
+    top: 790px; /* 原来是840px，再向上移动50px */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10000; /* 确保按钮在最前面 */
+    pointer-events: auto;
+    opacity: 0; /* 初始状态为隐藏 */
+    visibility: hidden; /* 初始状态隐藏 */
+    transition: opacity 1s ease, visibility 1s; /* 添加过渡效果 */
+}
+
+.reset-dream-button-container.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.reset-dream-button {
+    width: 280px; /* 原来是220px，进一步放大 */
+    height: auto;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.reset-dream-button:hover {
+    transform: scale(1.05);
+}
+
+/* 上左图片容器 */
+.top-left-image-container {
+    position: absolute;
+    top: 150px; /* 原来是180px，向上移动30px */
+    left: 180px;
+    z-index: 10000; /* 确保在最前面 */
+    opacity: 0; /* 初始状态为隐藏 */
+    visibility: hidden; /* 初始状态隐藏 */
+    transform: translateX(-100px); /* 初始位置在左侧外部 */
+    transition: opacity 1s ease, visibility 1s, transform 1.2s cubic-bezier(0.17, 0.67, 0.32, 1.1); /* 添加过渡效果 */
+}
+
+.top-left-image-container.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0); /* 显示时移动到正常位置 */
+}
+
+.top-left-image {
+    width: 300px; /* 原来是429px，缩小0.7倍 */
+    height: auto;
+    pointer-events: none;
+    animation: floatTopLeft 4s ease-in-out infinite; /* 添加浮动动画 */
+}
+
+/* 上右图片容器 */
+.top-right-image-container {
+    position: absolute;
+    top: 210px; /* 原来是180px，向下移动30px */
+    right: 180px;
+    z-index: 10000; /* 确保在最前面 */
+    opacity: 0; /* 初始状态为隐藏 */
+    visibility: hidden; /* 初始状态隐藏 */
+    transform: translateX(100px); /* 初始位置在右侧外部 */
+    transition: opacity 1s ease, visibility 1s, transform 1.2s cubic-bezier(0.17, 0.67, 0.32, 1.1); /* 添加过渡效果 */
+}
+
+.top-right-image-container.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0); /* 显示时移动到正常位置 */
+}
+
+.top-right-image {
+    width: 300px; /* 原来是429px，缩小0.7倍 */
+    height: auto;
+    pointer-events: none;
+    animation: floatTopRight 4.5s ease-in-out infinite; /* 添加浮动动画，与左侧错开 */
+}
+
+/* 上左图片的上下浮动动画 */
+@keyframes floatTopLeft {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0); }
+}
+
+/* 上右图片的上下浮动动画，与左侧错开 */
+@keyframes floatTopRight {
+    0% { transform: translateY(-5px); }
+    50% { transform: translateY(5px); }
+    100% { transform: translateY(-5px); }
+}
+
+ /* 设置固定位置的按钮样式 */
+ .fixed-button {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1000;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+/* 鼠标悬停时的动画效果 */
+.fixed-button:hover {
+    transform: scale(1.1);
+}
+
+/* 设置图片的最大宽度和高度 */
+.fixed-button img {
+    max-width: 200px;
+    max-height: 100px;
+}
+
+ /* 固定按钮样式 */
+.fixed-button1 {
+    position: fixed;
+    top: 20px;
+    right: 40px;
+    z-index: 1000;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+/* 鼠标悬停时按钮放大效果 */
+.fixed-button1:hover {
+    transform: scale(1.1);
+}
+
+/* 按钮图片样式 */
+.fixed-button1 img {
+    max-width: 80px;
+    max-height: 80px;
+}
+
+/* 隐藏音频元素 */
+audio {
+    display: none;
+}
+/* 自定义光标样式 */
+#cursor {
+    position: fixed;
+    width: 60px;
+    height: 60px;
+    pointer-events: none; /* 使光标不会干扰点击事件 */
+    z-index: 9999; /* 保持光标在最顶层 */
+    transform: translate(-50%, -50%); /* 居中对齐 */
+}
+
+/* 光标拖尾样式 */
+.cursor-trail {
+    display: none; /* 隐藏所有拖尾元素 */
+}
+     /* 隐藏默认光标 */
+     body {
+        cursor: none;
+    }

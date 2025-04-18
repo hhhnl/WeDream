@@ -1,0 +1,488 @@
+/* 移除禁用滚动的样式 */
+/* html, body {
+	margin: 0;
+	padding: 0;
+	height: 100%;
+	overflow: hidden;
+} */
+
+body, div, h1, h2, form, fieldset, input, textarea, footer, p{
+	margin: 0;
+	padding: 0;
+	border: 0;
+	outline: none;
+}
+body{
+	background: rgb(14, 2, 0); /* 修改背景颜色为深红色 */
+	color: gray;
+	font-family: tahoma;
+	/* 移除固定定位 */
+	/* position: fixed; */
+	/* width: 100%; */
+	height: 100%;
+	min-height: 1900px; /* 从1950px减少到1900px，减少50px总体长度 */
+	position: relative; /* 添加相对定位使绝对定位的子元素能够相对整个页面定位 */
+	margin: 0; /* 确保没有外边距 */
+	padding: 0; /* 确保没有内边距 */
+	padding-bottom: 0; /* 特别确保底部没有内边距 */
+	overflow-x: hidden; /* 防止水平滚动条 */
+}
+
+/* 移除鼠标悬停时的背景颜色变化 */
+/* body.envelope-hover {
+	background: #FFF8C5;
+} */
+
+p{
+	font-family: tahoma;
+	font-size: 24px;
+	color: #f0f0f0;
+}
+
+/* 移除背景变化时的文字颜色变化 */
+/* body.envelope-hover p {
+	color: #757575;
+} */
+
+#wrap{
+	width: 850px;
+	margin: 20px auto 0; /* 恢复原来的边距 */
+	height: 850px; /* 从870px减少到850px，减少20px高度 */
+	position: relative; /* 确保使用相对定位 */
+	/* 移除flex布局 */
+	/* display: flex; */
+	/* flex-direction: column; */
+	/* justify-content: center; */
+	padding-bottom: 0; /* 确保没有底部内边距 */
+	z-index: 1; /* 降低整体z-index到最底层 */
+}
+h1{
+	margin-bottom: 20px;
+	text-align: center;
+	font-size: 35px;
+	font-family: tahoma;
+	color: black;
+}
+#form-wrap{
+	overflow: hidden;
+	height: 740px;
+	position: relative;
+	top: 20px;
+	transition: all 1.8s cubic-bezier(0.33, 1, 0.68, 1); /* 进一步增加时间，让动画更慢 */
+	left: 50%;
+	transform: translateX(-50%);
+	width: 800px;
+	backface-visibility: hidden; /* 保留硬件加速 */
+	perspective: 1000;
+	cursor: pointer; /* 添加鼠标指针样式，指示可点击 */
+	z-index: 1; /* 降低z-index到底层 */
+	pointer-events: auto; /* 确保能接收点击事件 */
+}
+#form-wrap:before{
+	content: "";
+	position: absolute;
+	bottom: 192px;
+	left: 0;
+	background: url('img/before.png');
+	width: 800px;
+	height: 515px;
+	background-size: 800px 515px;
+	z-index: 1; /* 降低z-index，但保持相对关系 */
+}
+#form-wrap:after{
+	content: "";
+	position: absolute;
+	bottom: 0px;
+	left: 0;
+	background: url('img/after.png');
+	width: 800px;
+	height: 445px;
+	background-size: 800px 445px;
+	z-index: 3; /* 降低z-index，但保持相对关系 */
+}
+
+#form-wrap.hide:after,
+#form-wrap.hide:before{
+	display: none;
+}
+
+#form-wrap.open {
+	height: 1260px;
+	top: -300px;
+	transform: translateX(-50%);
+}
+
+/* 完全移除底部遮罩相关代码 */
+
+form{
+	position: relative;
+	top: 335px;
+	overflow: hidden;
+	height: 230px;
+	width: 670px;
+	margin: 0px auto;
+	padding: 20px;
+	border: none;
+	transition: all 1.8s cubic-bezier(0.33, 1, 0.68, 1); /* 进一步增加时间，让动画更慢 */
+	left: 50%;
+	transform: translateX(-53%);
+	z-index: 2; /* 降低z-index，但保持相对关系 */
+	backface-visibility: hidden; /* 保留硬件加速 */
+	perspective: 1000;
+}
+
+/* 信纸背景容器 */
+form::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: url('img/letter_bg.png') no-repeat;
+	background-size: 670px auto;
+	z-index: -1;
+}
+
+/* 移除折痕效果 */
+form::after {
+	display: none;
+}
+
+/* 打开状态的样式 */
+#form-wrap.open form {
+	height: 780px;
+	left: 50%;
+	transform: translateX(-53%);
+	top: 270px;
+	transition: all 1.8s cubic-bezier(0.33, 1, 0.68, 1); /* 进一步增加时间，让动画更慢 */
+}
+
+/* 恢复缺失的代码 */
+lable{
+	margin: 11px 20px 0 0;
+	font-size: 15px;
+	color: gray;
+	text-transform: uppercase;
+}
+input[type=text], textarea{
+	display: none;
+}
+textarea{
+	display: none;
+}
+textarea:focus,
+input[type=text]:focus{
+	background: none;
+}
+#form-wrap input[type=submit]{
+	display: none;
+}
+
+/* 飞入图片的样式 */
+.left-flying-image, .left-flying-image2, .right-flying-image, .bottom-flying-image {
+	position: fixed; /* 固定位置相对于视口 */
+	opacity: 0;
+	pointer-events: none;
+	z-index: 10; /* 降低z-index但仍确保在信封上层 */
+	will-change: transform, opacity; /* 更专注的优化属性 */
+	backface-visibility: hidden; /* 硬件加速 */
+	perspective: 1000;
+	transform-origin: center center; /* 确保变换原点一致 */
+	image-rendering: optimizeSpeed; /* 图片渲染优化 */
+	visibility: hidden; /* 初始隐藏，通过JS控制显示 */
+}
+
+.left-flying-image {
+	width: 330px; /* 缩小尺寸 */
+	height: auto;
+	left: -330px;
+	top: 20%; /* 上方位置 */
+	transform: translateY(-50%) rotate(-15deg) scale(1.0);
+	filter: none;
+	transition: all 1.0s cubic-bezier(0.25, 0.1, 0.25, 1) 0.1s; /* 飞入速度 */
+}
+
+/* 添加左2.png的样式 */
+.left-flying-image2 {
+	width: 560px; /* 800px的0.7倍 */
+	height: auto;
+	left: -600px; /* 调整初始位置，确保图片完全在屏幕外 */
+	top: calc(85% - 100px); /* 进一步向下移动 */
+	transform: translateY(-50%) rotate(-15deg) scale(1.68); /* 2.4的0.7倍 */
+	filter: none;
+	z-index: 11; /* 保持在其他飞入元素上方 */
+	transition: all 3.0s cubic-bezier(0.25, 0.1, 0.25, 1) 0.15s; /* 飞入速度 */
+}
+
+.right-flying-image {
+	width: 975px; /* 从650px放大1.5倍 */
+	height: auto;
+	right: -975px; /* 调整初始位置，确保放大后的图片完全在屏幕外 */
+	top: calc(75% - 150px); /* 向下移动位置 */
+	transform: translateY(-50%) rotate(15deg) scale(1.2); /* 增大scale比例 */
+	filter: none;
+	transition: all 2.0s cubic-bezier(0.25, 0.1, 0.25, 1) 0.2s; /* 飞入速度 */
+}
+
+/* 底部向上飞入的图片样式 */
+.bottom-flying-image {
+	width: 160px; /* 调整宽度适应页面 */
+	height: auto;
+	left: 50%; /* 水平居中 */
+	top: -200px; /* 初始位置在视口顶部以上 */
+	bottom: auto; /* 清除底部定位 */
+	transform: translateX(-50%) translateY(0) rotate(0deg) scale(1);
+	filter: none;
+	z-index: 12; /* 保持在其他飞入元素上方 */
+	transition: all 2.5s cubic-bezier(0.25, 0.1, 0.25, 1) 0.3s; /* 飞入速度稍微慢一些，更好看 */
+}
+
+/* 添加飞出动画类，用于滚轮控制 */
+.flying-out {
+  transition: all 2.5s cubic-bezier(0.25, 0.1, 0.25, 1) !important; /* 飞出速度更快 */
+}
+
+/* 添加html元素样式 */
+html {
+	height: 100%;
+	margin: 0;
+	padding: 0;
+}
+
+/* 添加星空背景样式 */
+.stars {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1; /* 将z-index设为负值，确保星空在所有元素的底层 */
+  pointer-events: none;
+}
+
+.star {
+  position: absolute;
+  background-color: #fff;
+  border-radius: 50%;
+  animation: twinkle var(--duration) infinite ease-in-out;
+  opacity: 0;
+  box-shadow: 0 0 3px rgba(255, 255, 255, 0.9), 0 0 5px rgba(255, 255, 255, 0.4); /* 增强发光效果和亮度 */
+}
+
+@keyframes twinkle {
+  0% {
+    opacity: 0;
+  }
+  40% { /* 加快达到最亮的时间 */
+    opacity: var(--opacity);
+  }
+  60% { /* 延长保持亮度的时间 */
+    opacity: var(--opacity);
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* 卡片效果 CSS */
+/* 卡片容器 */
+.card-container {
+  position: relative;
+  width: 850px; /* 调整宽度以匹配现有布局 */
+  height: 650px; /* 从680px减少到650px，减少30px高度 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  perspective: 1200px;
+  cursor: default;
+  caret-color: transparent;
+  user-select: none;
+  margin: 150px auto 0; /* 从100px增加到150px，向下移动50px */
+  z-index: 5; /* 降低z-index，但确保在信封上方 */
+}
+
+/* 卡片样式 */
+.card-container .card {
+  position: absolute;
+  width: 450px;
+  height: 600px;
+  border-radius: 0;
+  border: none;
+  cursor: default;
+  transition: all 0.5s cubic-bezier(0.33, 1, 0.68, 1), opacity 0.3s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: transparent;
+  transform: translateX(calc(var(--i) * 5px)) translateY(calc(var(--i) * 5px));
+  outline: none;
+  box-shadow: none;
+  caret-color: transparent;
+  user-select: none;
+  pointer-events: auto;
+  will-change: transform, opacity;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+.card-container .card img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+  border: none;
+  object-fit: contain;
+  transition: all 0.5s cubic-bezier(0.33, 1, 0.68, 1), opacity 0.3s ease;
+  filter: none;
+  pointer-events: none;
+  box-shadow: none;
+  outline: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  will-change: transform;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+/* 展开状态的transform完全覆盖初始状态 */
+.card-container.expanded .card {
+  transform: rotate(calc(var(--i) * -5deg))
+    translate(calc(var(--i) * 250px), 80px) !important;
+  opacity: 1;
+  box-shadow: none;
+  border: none;
+  caret-color: transparent;
+  user-select: none;
+  -webkit-transform-style: preserve-3d;
+  transform-style: preserve-3d;
+  -webkit-perspective: 1000px;
+  perspective: 1000px;
+}
+
+/* 设置卡片的初始和展开状态的叠放顺序及透明度 */
+.card-container .card[style*="--i: -2"],
+.card-container.expanded .card[style*="--i: -2"] {
+  z-index: 1;
+  opacity: 0.9;
+}
+
+.card-container .card[style*="--i: -1"],
+.card-container.expanded .card[style*="--i: -1"] {
+  z-index: 3;
+  opacity: 0.95;
+}
+
+.card-container .card[style*="--i: 0"],
+.card-container.expanded .card[style*="--i: 0"] {
+  z-index: 5;
+  opacity: 1;
+}
+
+.card-container .card[style*="--i: 1"],
+.card-container.expanded .card[style*="--i: 1"] {
+  z-index: 3;
+  opacity: 0.95;
+}
+
+.card-container .card[style*="--i: 2"],
+.card-container.expanded .card[style*="--i: 2"] {
+  z-index: 1;
+  opacity: 0.9;
+}
+
+/* 展开状态下卡片图片的样式 */
+.card-container.expanded .card img {
+  opacity: 1;
+}
+
+/* 所有卡片激活时都移动到正中央位置 */
+.card-container .card.active,
+.card-container.expanded .card.active {
+  transform: rotate(0deg) translate(0px, 80px) !important;
+  z-index: 1000 !important;
+  position: relative;
+  opacity: 1;
+  box-shadow: none;
+  border: none;
+  caret-color: transparent;
+  user-select: none;
+}
+
+/* 普通卡片在激活状态下图片放大1.3倍 */
+.card-container .card.active:not([style*="--i: 0"]) img,
+.card-container.expanded .card.active:not([style*="--i: 0"]) img {
+  transform: scale(1.3) !important;
+  opacity: 1;
+  filter: none;
+  box-shadow: none;
+  border: none;
+}
+
+/* 中间卡片在激活状态下图片保持1.3倍放大 */
+.card-container .card.active[style*="--i: 0"] img,
+.card-container.expanded .card.active[style*="--i: 0"] img {
+  transform: scale(1.3) !important;
+  opacity: 1;
+  filter: none;
+  box-shadow: none;
+  border: none;
+}
+
+/* 对中间卡片的图片特殊处理 - 放大1.3倍 */
+.card-container .card[style*="--i: 0"] img {
+  transform: scale(1.3) !important;
+  object-fit: contain !important;
+}
+
+/* 确保在展开状态下也保持放大，但不影响卡片本身的transform */
+.card-container.expanded .card[style*="--i: 0"] img {
+  transform: scale(1.3) !important;
+}
+
+/* 对中间卡片进行特殊处理，以适应放大的图片 */
+.card-container .card[style*="--i: 0"],
+.card-container.expanded .card[style*="--i: 0"] {
+  overflow: visible;
+}
+
+/* CSS变量用于背景色变化 */
+:root {
+  --current-color: #222;
+}
+
+/* 背景色变化 */
+.card-container.change-bg {
+  background-color: transparent; /* 修改为透明背景，取消背景色块 */
+  transition: none; /* 移除过渡效果 */
+}
+
+/* 移除所有伪元素效果 */
+.card-container .card::before,
+.card-container .card::after {
+  content: "";
+  opacity: 0;
+  display: none;
+}
+   /* 设置固定位置的按钮样式 */
+   .fixed-button {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1000;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+/* 鼠标悬停时的动画效果 */
+.fixed-button:hover {
+    transform: scale(1.1);
+}
+
+/* 设置图片的最大宽度和高度 */
+.fixed-button img {
+    max-width: 200px;
+    max-height: 100px;
+}
